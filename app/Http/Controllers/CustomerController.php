@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use DataTables;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Pagination\Paginator;
@@ -30,9 +31,9 @@ class CustomerController extends Controller
     }
 
     public function fetchState(Request $request){
-        $cid = $request->post('cid');
-        $state = DB::table('states')->where('countries',$cid
-        )
+        $data['states'] = State::where('country_id',$request->cid)->get(['name','value']);
+        print_r($data);
+        return response()->json($data);
     }
 
     public function fetchCity(Request $request){

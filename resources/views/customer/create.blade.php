@@ -25,7 +25,7 @@
 
 <form action="{{ route('customer.store') }}" method="POST" enctype="multipart/form-data">
     @csrf
-
+    @method('put')
     <div class="row">
         <div class="col-xs-5 col-sm-5 col-md-5">
             <div class="form-group">
@@ -99,20 +99,32 @@
 @endsection
 
 @push('scripts')
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
     $(document).ready(function () {
         // Fetch states based on the selected country
-        $('#country').change(function () {
-            var cid = $(this).val();
-            $.ajax({
-                url:'{{route('states.getStatesByCountry')}}',
-                type:'post',
-                data:'country_id'+cid+'&_token={{csrf_token()}}',
-                success:function(result){
-                    $('#state').html(result)
-                }
+        $('#country').on('change', function() {
+                var idCountry = $(this).val();
+                $("#state").html('');
+                $.ajax({
+                    url: "{{url('/admin/customer/fetch-state')}}",
+                    type: "POST",
+                    data: {
+                        cid: idCountry,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    dataType: 'json',
+                    success: function(result) {
+                        $('#state').html(
+                            '<option value="">-- Select State --</option>');
+                        $.each(result.states, function(key, value) {
+                            $("#state").html('<option value="' + value
+                                .id + '">' + value.name + '</option>');
+                        });
+                        $('#city').html('<option value="">-- Select City --</option>');
+                    }
+                });
             });
-        });
 
         // Fetch cities based on the selected state
         $('#state').change(function () {

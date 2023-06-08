@@ -13,11 +13,6 @@
 <script src="https://kit.fontawesome.com/d98a6653af.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-    <script>
-        $(document).ready(function() {
-          $('#table').DataTable();
-      });
-</script>
 @stack('scripts')
 </head>
 <body>
