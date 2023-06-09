@@ -19,7 +19,7 @@
                     </a>
                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="#!">Profile</a>
-                        <a class="dropdown-item" href="admin/logout">Log Out</a>
+                        <a class="dropdown-item" href="/logout">Log Out</a>
                     </div>
                 </li>
             </ul>

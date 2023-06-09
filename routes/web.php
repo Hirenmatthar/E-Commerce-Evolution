@@ -22,7 +22,7 @@ use App\Models\Data;
 Route::get('/admin/login', [AuthController::class, 'login']);
 Route::get('/admin/index', [AuthController::class, 'index']);
 Route::get('/admin/dashboard', [AuthController::class, 'dashboard']);
-Route::get('/admin/logout', [AuthController::class,'logout'])->name('logout');
+Route::get('/logout', [AuthController::class,'logout'])->name('logout');
 
 Route::post('admin/login', [AuthController::class,'validateLoginForm'])->name('validateLoginForm');
 Route::post('admin/register', [AuthController::class,'validateRegForm'])->name('validateRegForm');
@@ -30,6 +30,8 @@ Route::post('admin/register', [AuthController::class,'validateRegForm'])->name('
 Route::resource('/category', CategoryController::class);
 Route::resource('/user', UserController::class);
 
-Route::post('/admin/customer/fetch-state', [CustomerController::class, 'fetchState'])->name('states.getStatesByCountry');
+Route::post('/admin/customer/fetch-state', [CustomerController::class, 'fetchState'])->name('getStatesByCountry');
 Route::post('/admin/customer/fetch-city', [CustomerController::class, 'fetchCity'])->name('cities.getCitiesByState');
+Route::get('/getCustomers', [CustomerController::class, 'getCustomers'])->name('getCustomers');
+
 Route::resource('/admin/customer', CustomerController::class);

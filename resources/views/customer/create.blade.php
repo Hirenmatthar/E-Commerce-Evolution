@@ -25,7 +25,6 @@
 
 <form action="{{ route('customer.store') }}" method="POST" enctype="multipart/form-data">
     @csrf
-    @method('put')
     <div class="row">
         <div class="col-xs-5 col-sm-5 col-md-5">
             <div class="form-group">
@@ -72,7 +71,7 @@
             <div class="form-group">
                 <strong>State:</strong>
                 <select name="state" class="form-control" id="state">
-                    <option value="">Select State</option>
+
                 </select>
             </div>
         </div>
@@ -104,27 +103,25 @@
     $(document).ready(function () {
         // Fetch states based on the selected country
         $('#country').on('change', function() {
-                var idCountry = $(this).val();
-                $("#state").html('');
-                $.ajax({
-                    url: "{{url('/admin/customer/fetch-state')}}",
-                    type: "POST",
-                    data: {
-                        cid: idCountry,
-                        _token: '{{ csrf_token() }}'
-                    },
-                    dataType: 'json',
-                    success: function(result) {
-                        $('#state').html(
-                            '<option value="">-- Select State --</option>');
-                        $.each(result.states, function(key, value) {
-                            $("#state").html('<option value="' + value
-                                .id + '">' + value.name + '</option>');
-                        });
-                        $('#city').html('<option value="">-- Select City --</option>');
-                    }
-                });
+            var idCountry = this.value;
+            $("#state").html('');
+            $.ajax({
+                url: "{{ route('getStatesByCountry') }}",
+                type: "POST",
+                data: {
+                    cid: idCountry,
+                    _token: '{{ csrf_token() }}'
+                },
+                dataType: 'json',
+                success: function(result) {
+                    $('#state').html('<option value="">-- Select State --</option>');
+                    $.each(result.states, function(key, value) {
+                        $("#state").append('<option value="' + value.id + '">' + value.name + '</option>');
+                    });
+                    $('#city').html('<option value="">-- Select City --</option>');
+                }
             });
+        });
 
         // Fetch cities based on the selected state
         $('#state').change(function () {
@@ -135,8 +132,8 @@
                     type: 'POST',
                     dataType: 'json',
                     data: {
-                        '_token': '{{ csrf_token() }}',
-                        'state_id': stateId
+                        _token: '{{ csrf_token() }}',
+                        state_id: stateId
                     },
                     success: function (data) {
                         $('#city').html('<option value="">Select City</option>');

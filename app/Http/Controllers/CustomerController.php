@@ -13,27 +13,99 @@ use App\Models\{Country,State,City};
 
 class CustomerController extends Controller
 {
-
     public function index(Request $request)
     {
-        $search = $request->input('search');
-        $query = Customer::query();
+        // $search = $request->input('search');
+        // $query = Customer::query();
 
-        if ($search) {
-            $query->where('name', 'LIKE', "%$search%");
-        }
+        // if ($search) {
+        //     $query->where('name', 'LIKE', "%$search%");
+        // }
 
-        $customers = $query->latest()->paginate(5);
-        Paginator::useBootstrap();
+        // $customers = $query->latest()->paginate(4);
+        // Paginator::useBootstrap();
 
-        return view('customer.index', compact('customers', 'search'))
-            ->with('i', ($customers->currentPage() - 1) * 5);
+        // return view('customer.index', compact('customers', 'search'))
+        //     ->with('i', ($customers->currentPage() - 1) * 5);
+        $data['customers'] = Customer::all();
+
+      return view('customer.index',$data);
     }
 
+    public function getCustomers(Request $request){
+
+        ## Read value
+        $draw = $request->get('draw');
+        $start = $request->get("start");
+        $rowperpage = $request->get("length"); // Rows display per page
+
+        $columnIndex_arr = $request->get('order');
+        $columnName_arr = $request->get('columns');
+        $order_arr = $request->get('order');
+        $search_arr = $request->get('search');
+
+        $columnIndex = $columnIndex_arr[0]['column']; // Column index
+        $columnName = $columnName_arr[$columnIndex]['data']; // Column name
+        $columnSortOrder = $order_arr[0]['dir']; // asc or desc
+        $searchValue = $search_arr['value']; // Search value
+
+        // Total records
+        $records = Customer::select('count(*) as allcount');
+        $totalRecords = $records->count();
+
+        // Total records with filter
+        $records = Customer::select('count(*) as allcount')->where('name', 'like', '%' .$searchValue . '%');
+        $totalRecordswithFilter = $records->count();
+
+        // Fetch records
+        $records = Customer::orderBy($columnName,$columnSortOrder)
+                   ->select('customers.*')
+                   ->where('customers.name', 'like', '%' .$searchValue . '%');
+
+        $customers = $records->skip($start)
+                     ->take($rowperpage)
+                     ->get();
+
+        $data_arr = array();
+        foreach($customers as $customer){
+
+           $first_name = $customer->first_name;
+           $last_name = $customer->last_name;
+           $email = $customer->email;
+           $phone_no = $customer->phone_no;
+           $address = $customer->address;
+           $country = $customer->address;
+           $state = $customer->state;
+           $city = $customer->city;
+           $postal_code = $customer->postal_code;
+
+           $data_arr[] = array(
+               "first_name" => $first_name,
+               "last_name" => $last_name,
+               "email" => $email,
+               "phone_no" => $phone_no,
+               "address" => $address,
+               "country" => $country,
+               "state" => $state,
+               "city" => $city,
+               "postal_code" => $postal_code,
+           );
+        }
+
+        $response = array(
+           "draw" => intval($draw),
+           "iTotalRecords" => $totalRecords,
+           "iTotalDisplayRecords" => $totalRecordswithFilter,
+           "aaData" => $data_arr
+        );
+
+        return response()->json($response);
+     }
+
     public function fetchState(Request $request){
-        $data['states'] = State::where('country_id',$request->cid)->get(['name','value']);
-        print_r($data);
+        $data['states'] = State::where('country_id',$request->cid)->get(['name','id']);
         return response()->json($data);
+
     }
 
     public function fetchCity(Request $request){
@@ -62,13 +134,25 @@ class CustomerController extends Controller
             'postal_code' => 'required',
         ]);
 
-        $input = $request->all();
-        Customer::create($input);
+        $country = Country::find($request->country);
+        $state = State::find($request->state);
+        $city = City::find($request->city);
 
+        // Create a new Customer instance and populate the attributes
+        $customer = new Customer();
+        $customer->first_name = $request->first_name;
+        $customer->last_name = $request->last_name;
+        $customer->email = $request->email;
+        $customer->phone_no = $request->phone_no;
+        $customer->address = $request->address;
+        $customer->country = $country->name; // Store the name of the country
+        $customer->state = $state->name; // Store the name of the state
+        $customer->city = $city->name; // Store the name of the city
+        $customer->postal_code = $request->postal_code;
+        $customer->save();
         return redirect()->route('customer.index')
                         ->with('success','Customer created successfully.');
     }
-
 
     public function show(Customer $customer)
     {
@@ -78,7 +162,8 @@ class CustomerController extends Controller
 
     public function edit(Customer $customer)
     {
-        return view('customer.edit',compact('customer'));
+        $data['countries'] = Country::get(['name','id']);
+        return view('customer.edit',compact('customer'),$data);
     }
 
 
@@ -96,14 +181,19 @@ class CustomerController extends Controller
             'postal_code' => 'required',
         ]);
 
+        $country = Country::find($request->country);
+        $state = State::find($request->state);
+        $city = City::find($request->city);
+
+        // Create a new Customer instance and populate the attributes
         $customer->first_name = $request->first_name;
         $customer->last_name = $request->last_name;
         $customer->email = $request->email;
         $customer->phone_no = $request->phone_no;
         $customer->address = $request->address;
-        $customer->country = $request->country;
-        $customer->state = $request->state;
-        $customer->city = $request->city;
+        $customer->country = $country->name; // Store the name of the country
+        $customer->state = $state->name; // Store the name of the state
+        $customer->city = $city->name; // Store the name of the city
         $customer->postal_code = $request->postal_code;
         $customer->save();
 

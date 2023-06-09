@@ -62,20 +62,29 @@
             </div>
             <div class="col-xs-5 col-sm-5 col-md-5">
                 <div class="form-group">
-                    <strong>Country</strong>
-                    <input type="text" name="country" value="{{ $customer->country }}" class="form-control" placeholder="Country">
+                    <strong>Country:</strong>
+                    <select name="country" class="form-control" id="country" value="{{ $customer->country }}">
+                        <option value="">Select Country</option>
+                        @foreach($countries as $country)
+                            <option value="{{ $country->id }}">{{ $country->name }}</option>
+                        @endforeach
+                    </select>
                 </div>
             </div>
             <div class="col-xs-5 col-sm-5 col-md-5">
                 <div class="form-group">
-                    <strong>State</strong>
-                    <input type="text" name="state" value="{{ $customer->state }}" class="form-control" placeholder="State">
+                    <strong>State:</strong>
+                    <select name="state" class="form-control" id="state"  value="{{ $customer->state }}">
+
+                    </select>
                 </div>
             </div>
             <div class="col-xs-5 col-sm-5 col-md-5">
                 <div class="form-group">
-                    <strong>City</strong>
-                    <input type="text" name="city" value="{{ $customer->city }}" class="form-control" placeholder="City">
+                    <strong>City:</strong>
+                    <select name="city" class="form-control" id="city"  value="{{ $customer->city }}">
+                        
+                    </select>
                 </div>
             </div>
             <div class="col-xs-5 col-sm-5 col-md-5">
@@ -89,9 +98,56 @@
                     <button type="submit" class="btn btn-primary">Submit</button>
             </div>
         </div>
-
 @endsection
+@push('scripts')
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Fetch states based on the selected country
+        $('#country').on('change', function() {
+            var idCountry = this.value;
+            $("#state").html('');
+            $.ajax({
+                url: "{{ route('getStatesByCountry') }}",
+                type: "POST",
+                data: {
+                    cid: idCountry,
+                    _token: '{{ csrf_token() }}'
+                },
+                dataType: 'json',
+                success: function(result) {
+                    $('#state').html('<option value="">-- Select State --</option>');
+                    $.each(result.states, function(key, value) {
+                        $("#state").append('<option value="' + value.id + '">' + value.name + '</option>');
+                    });
+                    $('#city').html('<option value="">-- Select City --</option>');
+                }
+            });
+        });
 
-
-
-
+        // Fetch cities based on the selected state
+        $('#state').change(function () {
+            var stateId = $(this).val();
+            if (stateId) {
+                $.ajax({
+                    url: '{{ route('cities.getCitiesByState') }}',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        state_id: stateId
+                    },
+                    success: function (data) {
+                        $('#city').html('<option value="">Select City</option>');
+                        $.each(data.cities, function (key, value) {
+                            $('#city').append('<option value="' + value.id + '">' + value.name + '</option>');
+                        });
+                    }
+                });
+            } else {
+                $('#city').html('<option value="">Select City</option>');
+            }
+        });
+    });
+</script>
+@endpush

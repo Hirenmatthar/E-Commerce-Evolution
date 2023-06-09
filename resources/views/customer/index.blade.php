@@ -18,7 +18,7 @@
         </div>
     @endif
 
-    <form action="{{ route('customer.index') }}" method="GET">
+    {{-- <form action="{{ route('customer.index') }}" method="GET">
         <div class="form-group">
             <input type="text" name="search" id="" class="form-control" placeholder="Search by name" value="{{ $search }}">
             <button class="btn btn-primary">Search</button>
@@ -26,9 +26,8 @@
                 <button type="button" class="btn btn-primary">Reset</button>
             </a>
         </div>
-    </form>
-
-    <table class="table" id="table">
+    </form> --}}
+    <table id='empTable' width='100%' border="1" style='border-collapse: collapse;'>
         <thead>
         <tr>
             <th>No</th>
@@ -44,8 +43,7 @@
             <th width="200px">Action</th>
         </tr>
         </thead>
-
-            <tbody>
+            {{-- <tbody>
                 @foreach($customers as $customer)
                 <tr class="{{$customer->id}}">
                     <td>{{++$i}}</td>
@@ -75,10 +73,39 @@
                     </td>
                 </tr>
                 @endforeach
-                </tbody>
-
-
+                </tbody> --}}
     </table>
-    {!!$customers->links()!!}
+    {{-- {!!$customers->links()!!} --}}
+    <script type="text/javascript">
+        $(document).ready(function(){
+
+           // DataTable
+           var empTable = $('#empTable').DataTable({
+               processing: true,
+               serverSide: true,
+               ajax: {
+                  url:"{{route('getCustomers')}}",
+                  data: function(data){
+                  }
+               },
+               columns: [
+                  { data: 'first_name' },
+                  { data: 'last_name' },
+                  { data: 'email' },
+                  { data: 'phone_no' },
+                  { data: 'address' },
+                  { data: 'country' },
+                  { data: 'state' },
+                  { data: 'city' },
+                  { data: 'postal_code' },
+               ]
+           });
+
+           $('#searchName').keyup(function(){
+              empTable.draw();
+           });
+
+        });
+        </script>
 
 @endsection
