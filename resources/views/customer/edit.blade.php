@@ -83,7 +83,7 @@
                 <div class="form-group">
                     <strong>City:</strong>
                     <select name="city" class="form-control" id="city"  value="{{ $customer->city }}">
-                        
+
                     </select>
                 </div>
             </div>

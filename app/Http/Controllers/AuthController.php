@@ -24,14 +24,16 @@ class AuthController extends Controller
             'email'=>'required|email',
             'password' => 'required'
         ]);
-        if($validator->passes()){
-            $user = DB::table('users')->where('email', $request->email)->where('password',$request->password)->value('email','password');
-            if ($user) {
-                $username = DB::table('users')->where('email', $request->email)->where('password',$request->password)->value('name');
+        if ($validator->passes()) {
+            $user = DB::table('users')->where('email', $request->email)->first();
+
+            if ($user && Hash::check($request->password, $user->password)) {
+                $username = $user->name;
                 Session::put('username', $username);
-                return response()->json(['success'=>$username]);
+                return response()->json(['success' => $username]);
             }
-            return response()->json(['failed'=>'Oops it seems like you dont have account or invalid email or password!...']);
+
+            return response()->json(['failed' => 'Oops! It seems like you don\'t have an account or your email or password is invalid.']);
         }
         return response()->json(['error'=>$validator->errors()]);
     }

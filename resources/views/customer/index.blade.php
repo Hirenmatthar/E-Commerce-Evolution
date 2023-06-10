@@ -11,38 +11,29 @@
             </div>
         </div>
     </div>
-
     @if ($message = Session::get('success'))
         <div class="alert alert-success">
             <p>{{ $message }}</p>
         </div>
     @endif
 
-    {{-- <form action="{{ route('customer.index') }}" method="GET">
-        <div class="form-group">
-            <input type="text" name="search" id="" class="form-control" placeholder="Search by name" value="{{ $search }}">
-            <button class="btn btn-primary">Search</button>
-            <a href="{{ url('/admin/customer') }}">
-                <button type="button" class="btn btn-primary">Reset</button>
-            </a>
-        </div>
-    </form> --}}
-    <table id='empTable' width='100%' border="1" style='border-collapse: collapse;'>
+    <table id='datatable' class="display">
         <thead>
-        <tr>
-            <th>No</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Email</th>
-            <th>Phone No</th>
-            <th>Address</th>
-            <th>Country</th>
-            <th>State</th>
-            <th>City</th>
-            <th>Postal Code</th>
-            <th width="200px">Action</th>
-        </tr>
+            <tr align="left">
+                <th>No</th>
+                <th data-sortable="true">First Name</th>
+                <th data-sortable="true">Last Name</th>
+                <th data-sortable="false">Email</th>
+                <th data-sortable="false">Phone No</th>
+                <th data-sortable="false">Address</th>
+                <th data-sortable="true">Country</th>
+                <th data-sortable="true">State</th>
+                <th data-sortable="true">City</th>
+                <th data-sortable="false">Postal Code</th>
+                <th width="200px">Action</th>
+            </tr>
         </thead>
+        <tbody></tbody>
             {{-- <tbody>
                 @foreach($customers as $customer)
                 <tr class="{{$customer->id}}">
@@ -56,7 +47,6 @@
                     <td>{{$customer->state}}</td>
                     <td>{{$customer->city}}</td>
                     <td>{{$customer->postal_code}}</td>
-
 
                     <td>
                         <form action="{{ route('customer.destroy',$customer->id) }}" method="POST">
@@ -76,36 +66,28 @@
                 </tbody> --}}
     </table>
     {{-- {!!$customers->links()!!} --}}
-    <script type="text/javascript">
-        $(document).ready(function(){
-
-           // DataTable
-           var empTable = $('#empTable').DataTable({
-               processing: true,
-               serverSide: true,
-               ajax: {
-                  url:"{{route('getCustomers')}}",
-                  data: function(data){
-                  }
-               },
-               columns: [
-                  { data: 'first_name' },
-                  { data: 'last_name' },
-                  { data: 'email' },
-                  { data: 'phone_no' },
-                  { data: 'address' },
-                  { data: 'country' },
-                  { data: 'state' },
-                  { data: 'city' },
-                  { data: 'postal_code' },
-               ]
-           });
-
-           $('#searchName').keyup(function(){
-              empTable.draw();
-           });
-
-        });
-        </script>
-
 @endsection
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        $('#datatable').DataTable({
+            processing:true,
+            serverSide:true,
+            order:[[0,"desc"]],
+            ajax:"{{url('users-data')}}",
+            columns:[
+                {data:'id'},
+                {data:'first_name'},
+                {data:'last_name'},
+                {data:'email'},
+                {data:'phone_no'},
+                {data:'address'},
+                {data:'country'},
+                {data:'state'},
+                {data:'city'},
+                {data:'postal_code'},
+            ]
+        });
+    });
+</script>
+@endpush

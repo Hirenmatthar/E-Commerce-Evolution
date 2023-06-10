@@ -39,6 +39,7 @@
                     <input type="password" name="password" id="password" placeholder="Password" >
                     <span class="password_err"></span>
                     <button type="submit">Login</button>
+                    <a href="{{ route('forget.password.get') }}">Forget Password</a>
                 </form>
             </div>
         </div>

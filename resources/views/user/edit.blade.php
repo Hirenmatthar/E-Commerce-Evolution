@@ -31,13 +31,13 @@
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>Username:</strong>
-                    <input type="text" name="name" value="{{ $user->name }}" class="form-control" placeholder="Username">
+                    <input type="text" name="name" value="{{ $user->name }}" class="form-control">
                 </div>
             </div>
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>Email:</strong>
-                    <input type="email" name="email" value="{{ $user->email }}" class="form-control" placeholder="Email">
+                    <input type="email" name="email" value="{{ $user->email }}" class="form-control">
                 </div>
             </div>
             <div class="col-xs-12 col-sm-12 col-md-12 text-center">
