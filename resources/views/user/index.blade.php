@@ -1,9 +1,4 @@
 @extends('user.layout')
-<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-{{-- <link rel="stylesheet" href="https://cdn.datatables.net/1.10.12/css/dataTables.bootstrap.min.css"> --}}
-<script src="//code.jquery.com/jquery-1.12.3.js"></script>
-{{-- <script src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script> --}}
-{{-- <script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script> --}}
 @section('content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
@@ -15,7 +10,7 @@
             </div>
         </div>
     </div>
-    <form action="{{ route('user.index') }}" method="GET">
+    {{-- <form action="{{ route('user.index') }}" method="GET">
 
         <div class="form-group">
             <input type="text" name="search" id="" class="form-control" placeholder="Search by name" value="{{$search}}">
@@ -25,8 +20,8 @@
         </a>
         </div>
 
-    </form>
-    <table class="table" id="table">
+    </form> --}}
+    {{-- <table class="table" id="table">
         <thead>
             <tr>
                 <th class="text-center">No.</th>
@@ -58,6 +53,68 @@
             @endforeach
             </tbody>
     </table>
-    {!! $users->links() !!}
+    {!! $users->links() !!} --}}
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+
+                    <table id="userTable" class="table table-striped" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>id</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+
+          dtable = $('#userTable').DataTable({
+              "language": {
+                  "lengthMenu": "_MENU_",
+              },
+              "columnDefs": [ {
+                "targets": "_all",
+                "orderable": false
+              } ],
+              responsive: true,
+              'serverSide': true, // Feature control DataTables' server-side processing mode.
+
+              "ajax": {
+                "url": "{{route('getUsers')}}",
+                "type": "POST",
+                "data" :function ( data ) {
+                    data._token = $('meta[name="csrf_token"]').attr('content');
+                },
+                "error":function(xhr,error,thrown){
+                    console.log("Ajax error:",thrown);
+                }
+              }
+          });
+
+          $('.panel-ctrls').append("<i class='separator'></i>");
+
+          $('.panel-footer').append($(".dataTable+.row"));
+          $('.dataTables_paginate>ul.pagination').addClass("pull-right");
+
+          $("#apply_filter_btn").click(function()
+          {
+            dtable.ajax.reload(null,false);
+          });
+        });
+
+      </script>
+
 
 @endsection
+

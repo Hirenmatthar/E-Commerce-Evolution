@@ -11,7 +11,7 @@
                         <span class="profile-image">{{substr(session('username'),0,1)}}</span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="/admin/profile">Profile</a>
+                        <a class="dropdown-item" href="{{ route('view_profile') }}">Profile</a>
                         <a class="dropdown-item" href="/logout">Log Out</a>
                     </div>
                 </li>

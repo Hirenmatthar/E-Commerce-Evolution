@@ -30,6 +30,7 @@ Route::post('admin/register', [AuthController::class,'validateRegForm'])->name('
 
 Route::resource('/category', CategoryController::class);
 Route::resource('/user', UserController::class);
+Route::post('/user',[UserController::class,'getUsers'])->name('getUsers');
 
 Route::post('/admin/customer/fetch-state', [CustomerController::class, 'fetchState'])->name('getStatesByCountry');
 Route::post('/admin/customer/fetch-city', [CustomerController::class, 'fetchCity'])->name('cities.getCitiesByState');
@@ -42,5 +43,6 @@ Route::post('forget-password', [ForgotPasswordController::class, 'submitForgetPa
 Route::get('reset-password/{token}', [ForgotPasswordController::class, 'showResetPasswordForm'])->name('reset.password.get');
 Route::post('reset-password', [ForgotPasswordController::class, 'submitResetPasswordForm'])->name('reset.password.post');
 
-Route::get('/admin/profile', [UserController::class, 'profile']);
-Route::get('/admin/profile', [UserController::class, '_profile'])->name('auth.profile');
+Route::get('/admin/profile', [UserController::class, 'view_profile'])->name('view_profile');
+Route::post('/admin/edit_profile}', [UserController::class, 'edit_profile'])->name('edit_profile');
+Route::post('/admin/set_password}', [UserController::class, 'set_password'])->name('set_password');

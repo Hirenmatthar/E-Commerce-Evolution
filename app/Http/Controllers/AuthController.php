@@ -26,10 +26,10 @@ class AuthController extends Controller
         ]);
         if ($validator->passes()) {
             $user = DB::table('users')->where('email', $request->email)->first();
-
             if ($user && Hash::check($request->password, $user->password)) {
                 $username = $user->name;
                 Session::put('username', $username);
+                Session::put('id',$user->id);
                 return response()->json(['success' => $username]);
             }
 
@@ -47,7 +47,7 @@ class AuthController extends Controller
             DB::table('users')->insert([
                 'name' => $request->username,
                 'email' => $request->email,
-                'password' => $request->password
+                'password' => Hash::make($request->password)
             ]);
             return response()->json(['success'=>'hello']);
         }
