@@ -1,21 +1,23 @@
-@if(session('username')!=null){
+{{-- @if(session('username')!=null){
     <script>window.location.href='/admin/index';</script>
 }
-@endif
+@endif --}}
 <!DOCTYPE html>
 <html>
     <head>
         <title>Slide Navbar</title>
-        <link rel="stylesheet" type="text/css" href="slide navbar style.css">
+        {{-- <link rel="stylesheet" type="text/css" href="slide navbar style.css"> --}}
         <link href="https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap" rel="stylesheet">
         <link rel="stylesheet" href={{asset('assets-1/css/styles.css')}}>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
 
     </head>
     <body>
+        @if (session('error'))
+            <div>{{ session('error') }}</div>
+        @endif
         <div class="main">
             <input type="checkbox" id="chk" aria-hidden="true">
-
             <div class="signup">
                 <form method="POST" id="regForm">
                     @csrf

@@ -58,7 +58,7 @@
                             </ul>
                         </div>
                     @endif
-                    <form action="{{route('set_password')}}" id="set_password_form" method="post" enctype="multipart/form-data">
+                    <form id="set_password_form" method="post" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
                             <div class="col-md-6">
@@ -95,32 +95,33 @@
 <script>
     $(document).ready(function() {
         // Handle form submission
-        $('#set_password').submit(function(e) {
+        $('#set_password_form').submit(function(e) {
             e.preventDefault(); // Prevent default form submission
 
             // Get form data
-            var oldPassword = ('#old_password').val();
-            var newPassword = ('#new_password').val();
-            var confirmPassword = ('#confirm_password').val();
+            var oldPassword = $('#old_password').val();
+            var newPassword = $('#new_password').val();
+            var confirmPassword = $('#confirm_password').val();
 
             // Send AJAX request
             $.ajax({
                 url: '{{ route('set_password') }}',
-                    type: 'POST',
-                    dataType: 'json',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        old_password : oldPassword,
-                        new_password: newPassword,
-                        cofirm_password : confirmPassword
-
-                    },
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    old_password: oldPassword,
+                    new_password: newPassword,
+                    confirm_password: confirmPassword
+                },
                 success: function(response) {
                     // Handle success response
                     // Display success message or perform any other actions
 
                     // Example: Show success toaster
-                    toastr.success('Password updated successfully.');
+                    if (response.success) {
+                        toastr.success('Password updated successfully.');
+                    }
                 },
                 error: function(xhr, status, error) {
                     // Handle error response
