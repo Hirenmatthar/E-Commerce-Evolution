@@ -16,6 +16,7 @@ Route::post('/login', [AuthController::class,'validateLoginForm'])->name('valida
 Route::post('/register', [AuthController::class,'validateRegForm'])->name('validateRegForm');
 
 Route::resource('/category', CategoryController::class);
+Route::post('/getCategory',[CategoryController::class,'getCategories'])->name('getCategories');
 
 Route::resource('/user', UserController::class);
 Route::post('/user/getUser',[UserController::class,'getUsers'])->name('getUsers');
@@ -25,7 +26,7 @@ Route::post('/admin/set_password}', [UserController::class, 'set_password'])->na
 
 Route::post('/admin/customer/fetch-state', [CustomerController::class, 'fetchState'])->name('getStatesByCountry');
 Route::post('/admin/customer/fetch-city', [CustomerController::class, 'fetchCity'])->name('cities.getCitiesByState');
-Route::get('/users-data', [CustomerController::class, 'getCustomers']);
+Route::post('/getCustomer',[CustomerController::class,'getCustomers'])->name('getCustomers');
 Route::resource('/admin/customer', CustomerController::class);
 
 Route::get('forget-password', [ForgotPasswordController::class, 'showForgetPasswordForm'])->name('forget.password.get');

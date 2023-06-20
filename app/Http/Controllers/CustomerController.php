@@ -15,112 +15,70 @@ class CustomerController extends Controller
 {
     public function index(Request $request)
     {
-        // $search = $request->input('search');
-        // $query = Customer::query();
+        $query = Customer::query();
+        $customers = $query->latest()->paginate(5);
+        Paginator::useBootstrap();
 
-        // if ($search) {
-        //     $query->where('name', 'LIKE', "%$search%");
-        // }
-
-        // $customers = $query->latest()->paginate(4);
-        // Paginator::useBootstrap();
-
-        // return view('customer.index', compact('customers', 'search'))
-        //     ->with('i', ($customers->currentPage() - 1) * 5);
-        // $data['customers'] = Customer::all();
-
-      return view('customer.index');
+        return view('customer.index', compact('customers'))
+            ->with('i', ($customers->currentPage() - 1) * 5);
     }
+    public function getCustomers(Request $request)
+    {
+        // Read value
+        $draw = $request->input('draw');
+        $start = $request->input('start');
+        $length = $request->input('length');
 
-    public function getCustomers(Request $request){
+        $searchValue = $request->input('search.value');
 
-        print_r($request->all());
-        ## Read value
-        $draw = $request->get('draw');
-        $start = $request->get("start");
-        $rowPerPage = $request->get("length"); // Rows display per page
+        // Total records
+        $totalRecords = Customer::count();
 
-        $orderArray = $request->get('order');
-        $columnIndex = $orderArray[0]['column'];
-        $columnNameArray = $request->get('columns');
-        $searchArray = $request->get('search');
+        // Apply search filter
+        $filteredRecords = Customer::where('first_name', 'like', '%' . $searchValue . '%')
+            ->count();
 
-        $columnName = $columnNameArray[$columnIndex]['data']; // Column name
-        $columnSortOrder = $orderArray[0]['dir']; // asc or desc
-        $searchValue = $searchArray['value']; // Search value
+        // Fetch records with pagination and search
+        $records = Customer::where('first_name', 'like', '%' . $searchValue . '%')
+            ->orderBy('id', 'desc')
+            ->skip($start)
+            ->take($length)
+            ->get();
 
-        // // Total records
-        // $records = Customer::select('count(*) as allcount');
-        // $totalRecords = $records->count();
+        $data = [];
+        $counter = $start + 1;
 
-        // // Total records with filter
-        // $records = Customer::select('count(*) as allcount')->where('name', 'like', '%' .$searchValue . '%');
-        // $totalRecordswithFilter = $records->count();
-
-        // // Fetch records
-        // $records = Customer::orderBy($columnName,$columnSortOrder)
-        //            ->select('customers.*')
-        //            ->where('customers.name', 'like', '%' .$searchValue . '%');
-
-        // $customers = $records->skip($start)
-        //              ->take($rowperpage)
-        //              ->get();
-
-        // $data_arr = array();
-        // foreach($customers as $customer){
-
-        //    $first_name = $customer->first_name;
-        //    $last_name = $customer->last_name;
-        //    $email = $customer->email;
-        //    $phone_no = $customer->phone_no;
-        //    $address = $customer->address;
-        //    $country = $customer->address;
-        //    $state = $customer->state;
-        //    $city = $customer->city;
-        //    $postal_code = $customer->postal_code;
-
-        //    $data_arr[] = array(
-        //        "first_name" => $first_name,
-        //        "last_name" => $last_name,
-        //        "email" => $email,
-        //        "phone_no" => $phone_no,
-        //        "address" => $address,
-        //        "country" => $country,
-        //        "state" => $state,
-        //        "city" => $city,
-        //        "postal_code" => $postal_code,
-        //    );
-        // }
-
-        $customers = DB::table('customers');
-        $total = $customers->count();
-        $totalFilter = DB::table('customers');
-        if(!empty($searchValue)){
-            $arrData = $totalFilter->where('first_name','like','%'.$searchValue.'%');
-            $arrData = $totalFilter->orWhere('last_name','like','%'.$searchValue.'%');
+        foreach ($records as $record) {
+            $row = [
+                $counter,
+                $record->first_name,
+                $record->last_name,
+                $record->email,
+                $record->phone_no,
+                $record->address,
+                $record->country,
+                $record->state,
+                $record->city,
+                $record->postal_code,
+                '<a href="' . route('customer.edit', $record->id) . '" class="btn"><i class="fa-regular fa-pen-to-square"></i></a>&nbsp;' .
+                '<a href="' . route('customer.show', $record->id) . '" class="btn"><i class="fa-solid fa-eye"></i></a>&nbsp;' .
+                '<form action="' . route('customer.destroy', $record->id) . '" method="POST" style="display:inline">
+                    ' . csrf_field() . '
+                    ' . method_field('DELETE') . '
+                    <button type="submit" class="btn"><i class="fa-solid fa-trash-can"></i></button>
+                </form>'
+            ];
+            $data[] = $row;
+            $counter++;
         }
-        $totalFilter = $totalFilter->count();
-
-        $arrData = DB::table('customers');
-        $arrData = $arrData->skip($start)->take($rowPerPage);
-        $arrData = $arrData->orderBy($columnName,$columnSortOrder);
-
-        if(!empty($searchValue)){
-            $arrData = $arrData->where('first_name','like','%'.$searchValue.'%');
-            $arrData = $arrData->orWhere('last_name','like','%'.$searchValue.'%');
-        }
-        $arrData = $arrData->get();
-
-        $response = array(
-           "draw" => intval($draw),
-           "recordsTotal" => $total,
-           "recordsFiltered" => $totalFilter,
-           "data" => $arrData,
-        );
-
+        $response = [
+            'draw' => intval($draw),
+            'recordsTotal' => $totalRecords,
+            'recordsFiltered' => $filteredRecords,
+            'data' => $data,
+        ];
         return response()->json($response);
-     }
-
+    }
     public function fetchState(Request $request){
         $data['states'] = State::where('country_id',$request->cid)->get(['name','id']);
         return response()->json($data);

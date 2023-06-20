@@ -3,10 +3,10 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <div class="pull-left">
-                <h2>User Data</h2>
+                <h2>Category Data</h2>
             </div>
             <div class="pull-right">
-                <a class="btn btn-success" href="{{ route('user.create') }}"> Create New User</a>
+                <a class="btn btn-success" href="{{ route('category.create') }}"> Create New Category</a>
             </div>
         </div>
     </div>
@@ -14,7 +14,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <table id="userTable" class="table table-striped" style="width:100%">
+                    <table id="categoryTable" class="table table-striped" style="width:100%">
                         <thead>
                             <tr>
                                 <th>No.</th>
@@ -39,7 +39,7 @@
 
         $(document).ready(function() {
 
-          dtable = $('#userTable').DataTable({
+          dtable = $('#categoryTable').DataTable({
               "language": {
                   "lengthMenu": "_MENU_",
               },
@@ -51,7 +51,7 @@
               'serverSide': true, // Feature control DataTables' server-side processing mode.
 
               "ajax": {
-                "url": "{{route('getUsers')}}",
+                "url": "{{route('getCategories')}}",
                 'beforeSend': function (request) {
                   request.setRequestHeader("X-CSRF-TOKEN", $('meta[name="csrf-token"]').attr('content'));
               },

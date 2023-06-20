@@ -15,18 +15,65 @@ class CategoryController extends Controller
 {
     public function index(Request $request)
     {
-        $search = $request->input('search');
         $query = Category::query();
-
-        if ($search) {
-            $query->where('name', 'LIKE', "%$search%");
-        }
-
-        $categories = $query->latest()->paginate(1);
+        $categories = $query->latest()->paginate(5);
         Paginator::useBootstrap();
 
-        return view('category.index', compact('categories', 'search'))
+        return view('category.index', compact('categories'))
             ->with('i', ($categories->currentPage() - 1) * 5);
+    }
+    public function getCategories(Request $request)
+    {
+        // Read value
+        $draw = $request->input('draw');
+        $start = $request->input('start');
+        $length = $request->input('length');
+
+        $searchValue = $request->input('search.value');
+
+        // Total records
+        $totalRecords = Category::count();
+
+        // Apply search filter
+        $filteredRecords = Category::where('name', 'like', '%' . $searchValue . '%')
+            ->count();
+
+        // Fetch records with pagination and search
+        $records = Category::where('name', 'like', '%' . $searchValue . '%')
+            ->orderBy('id', 'desc')
+            ->skip($start)
+            ->take($length)
+            ->get();
+
+        $data = [];
+        $counter = $start + 1;
+
+        foreach ($records as $record) {
+            $status = $record->status == '1' ? '<span class="text-success">Active</span>' : '<span class="text-danger">Inactive</span>';
+
+            $row = [
+                $counter,
+                $record->name,
+                $status,
+                $image = $record->image ? '<img src="' . asset($record->image) . '" alt="Category Image" width="100">' : 'No Image',
+                '<a href="' . route('category.edit', $record->id) . '" class="btn"><i class="fa-regular fa-pen-to-square"></i></a>&nbsp;' .
+                '<a href="' . route('category.show', $record->id) . '" class="btn"><i class="fa-solid fa-eye"></i></a>&nbsp;' .
+                '<form action="' . route('category.destroy', $record->id) . '" method="POST" style="display:inline">
+                    ' . csrf_field() . '
+                    ' . method_field('DELETE') . '
+                    <button type="submit" class="btn"><i class="fa-solid fa-trash-can"></i></button>
+                </form>'
+            ];
+            $data[] = $row;
+            $counter++;
+        }
+        $response = [
+            'draw' => intval($draw),
+            'recordsTotal' => $totalRecords,
+            'recordsFiltered' => $filteredRecords,
+            'data' => $data,
+        ];
+        return response()->json($response);
     }
     public function create()
     {

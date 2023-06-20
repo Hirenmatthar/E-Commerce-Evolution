@@ -71,7 +71,6 @@
             <div class="form-group">
                 <strong>State:</strong>
                 <select name="state" class="form-control" id="state">
-
                 </select>
             </div>
         </div>
@@ -79,7 +78,6 @@
             <div class="form-group">
                 <strong>City:</strong>
                 <select name="city" class="form-control" id="city">
-                    <option value="">Select City</option>
                 </select>
             </div>
         </div>
@@ -95,9 +93,6 @@
         </div>
     </div>
 </form>
-@endsection
-
-@push('scripts')
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
     $(document).ready(function () {
@@ -136,7 +131,7 @@
                         state_id: stateId
                     },
                     success: function (data) {
-                        $('#city').html('<option value="">Select City</option>');
+                        $('#city').html('<option value="">-- Select City --</option>');
                         $.each(data.cities, function (key, value) {
                             $('#city').append('<option value="' + value.id + '">' + value.name + '</option>');
                         });
@@ -148,4 +143,5 @@
         });
     });
 </script>
-@endpush
+
+@endsection

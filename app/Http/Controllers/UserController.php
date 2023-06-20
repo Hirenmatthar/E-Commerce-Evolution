@@ -33,59 +33,59 @@ class UserController extends Controller
             ->with('i', (request()->input('page', 1) - 1) * 5);
         }
 
-        public function getUsers(Request $request)
-        {
-            // Read value
-            $draw = $request->input('draw');
-            $start = $request->input('start');
-            $length = $request->input('length');
+    public function getUsers(Request $request)
+    {
+        // Read value
+        $draw = $request->input('draw');
+        $start = $request->input('start');
+        $length = $request->input('length');
 
-            $searchValue = $request->input('search.value');
+        $searchValue = $request->input('search.value');
 
-            // Total records
-            $totalRecords = User::count();
+        // Total records
+        $totalRecords = User::count();
 
-            // Apply search filter
-            $filteredRecords = User::where('name', 'like', '%' . $searchValue . '%')
-                ->count();
+        // Apply search filter
+        $filteredRecords = User::where('name', 'like', '%' . $searchValue . '%')
+            ->count();
 
-            // Fetch records with pagination and search
-            $records = User::where('name', 'like', '%' . $searchValue . '%')
-                ->orderBy('id', 'desc')
-                ->skip($start)
-                ->take($length)
-                ->get();
+        // Fetch records with pagination and search
+        $records = User::where('name', 'like', '%' . $searchValue . '%')
+            ->orderBy('id', 'desc')
+            ->skip($start)
+            ->take($length)
+            ->get();
 
-            $data = [];
-            $counter = $start + 1;
+        $data = [];
+        $counter = $start + 1;
 
-            foreach ($records as $record) {
+        foreach ($records as $record) {
 
 
-                $row = [
-                    $counter,
-                    $record->name,
-                    $record->email,
+            $row = [
+                $counter,
+                $record->name,
+                $record->email,
 
-                    '<a href="' . route('user.edit', $record->id) . '" class="btn"><i class="fa-regular fa-pen-to-square"></i></a>&nbsp;' .
-                    '<a href="' . route('user.show', $record->id) . '" class="btn"><i class="fa-solid fa-eye"></i></a>&nbsp;' .
-                    '<form action="' . route('user.destroy', $record->id) . '" method="POST" style="display:inline">
-                        ' . csrf_field() . '
-                        ' . method_field('DELETE') . '
-                        <button type="submit" class="btn"><i class="fa-solid fa-trash-can"></i></button>
-                    </form>'
-                ];
-
-                $data[] = $row;
-                $counter++;
-            }
-
-            $response = [
-                'draw' => intval($draw),
-                'recordsTotal' => $totalRecords,
-                'recordsFiltered' => $filteredRecords,
-                'data' => $data,
+                '<a href="' . route('user.edit', $record->id) . '" class="btn"><i class="fa-regular fa-pen-to-square"></i></a>&nbsp;' .
+                '<a href="' . route('user.show', $record->id) . '" class="btn"><i class="fa-solid fa-eye"></i></a>&nbsp;' .
+                '<form action="' . route('user.destroy', $record->id) . '" method="POST" style="display:inline">
+                    ' . csrf_field() . '
+                    ' . method_field('DELETE') . '
+                    <button type="submit" class="btn"><i class="fa-solid fa-trash-can"></i></button>
+                </form>'
             ];
+
+            $data[] = $row;
+            $counter++;
+        }
+
+        $response = [
+            'draw' => intval($draw),
+            'recordsTotal' => $totalRecords,
+            'recordsFiltered' => $filteredRecords,
+            'data' => $data,
+        ];
 
         return response()->json($response);
     }
