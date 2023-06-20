@@ -117,20 +117,19 @@ class UserController extends Controller
     }
     public function view_profile(User $user)
     {
-        $user = User::where('id',session('id'))->first();
-        return view('auth.profile',compact('user'));
+        return view('auth.profile');
     }
     public function edit_profile(Request $request)
     {
 
-        $user = DB::table('users')->where('id',session('id'))->value('name','email');
+        $user = DB::table('users')->where('id',Auth::user()->id)->value('name','email');
         $user = [
             'name' => $request->name,
             'email' => $request->email
         ];
 
         DB::table('users')
-            ->where('id',session('id'))
+            ->where('id',Auth::user()->id)
             ->update($user);
 
         return redirect()->route('view_profile')
@@ -166,24 +165,25 @@ class UserController extends Controller
             'confirm_password' => 'required|same:new_password',
         ]);
 
-        $user = DB::table('users')->where('id',session('id'))->first();
+        $user = DB::table('users')->where('id',Auth::user()->id)->first();
         // Check if the old password matches the one in the database
         if (!Hash::check($request->old_password, $user->password)) {
-            return response()->json(['message' => 'Invalid old password.'], 422);
+            return redirect()->route('view_profile')->with('error','Something went Wrong.');
         }
 
         // Check if the old and new passwords are the same
         if ($request->old_password === $request->new_password) {
-            return response()->json(['message' => 'Old and new passwords cannot be the same.'], 422);
+            return redirect()->route('view_profile')->with('error','Something went Wrong.');
         }
         // Update the user's password
         $user = [
             'password' => Hash::make($request->new_password),
         ];
         DB::table('users')
-                ->where('id',session('id'))
+                ->where('id',Auth::user()->id)
                 ->update($user);
 
-        return response()->json(['success'=>true]);
+        // return response()->json(['message'=>'Password Updated Successfully!...']);
+        return redirect()->route('view_profile')->with('success','Profile Updated Successfully.');
     }
 }

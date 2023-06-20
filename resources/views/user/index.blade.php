@@ -1,7 +1,4 @@
 @extends('user.layout')
-
-
-
 @section('content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
@@ -13,56 +10,10 @@
             </div>
         </div>
     </div>
-    {{-- <form action="{{ route('user.index') }}" method="GET">
-
-        <div class="form-group">
-            <input type="text" name="search" id="" class="form-control" placeholder="Search by name" value="{{$search}}">
-            <button class="btn btn-primary">Search</button>
-        <a href="{{url('/user')}}">
-            <button type="button" class="btn btn-primary">Reset</button>
-        </a>
-        </div>
-
-    </form> --}}
-    {{-- <table class="table" id="table">
-        <thead>
-            <tr>
-                <th class="text-center">No.</th>
-                <th class="text-center">Username</th>
-                <th class="text-center">Email</th>
-                <th class="text-center">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($users as $user)
-            <tr class="{{$user->id}}">
-                <td class="text-center">{{++$i}}</td>
-                <td class="text-center">{{$user->name}}</td>
-                <td class="text-center">{{$user->email}}</td>
-                <td class="text-center">
-                    <form action="{{ route('user.destroy',$user->id) }}" method="POST">
-
-                        <a class="btn btn-info" href="{{ route('user.show',$user->id) }}">Show</a>
-
-                        <a class="btn btn-primary" href="{{ route('user.edit',$user->id) }}">Edit</a>
-
-                        @csrf
-                        @method('DELETE')
-
-                        <button type="submit" class="btn btn-danger">Delete</button>
-                    </form>
-                </td>
-            </tr>
-            @endforeach
-            </tbody>
-    </table>
-    {!! $users->links() !!} --}}
-
     <div class="row">
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-
                     <table id="userTable" class="table table-striped" style="width:100%">
                         <thead>
                             <tr>
@@ -73,21 +24,16 @@
                             </tr>
                         </thead>
                     </table>
-
                 </div>
             </div>
         </div>
     </div>
-
-
-
 <script type="text/javascript">
 
     $.ajaxSetup({
       headers: {
           'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
       }
-
     });
 
     $(document).ready(function() {
@@ -124,16 +70,7 @@
       {
         dtable.ajax.reload(null,false);
       });
-
-
-
-
     });
 
-  </script>
-
-
+</script>
 @endsection
-
-
-

@@ -7,9 +7,9 @@
             <div class="profile-tab-nav border-right">
                 <div class="p-4">
                     <div class="img-circle text-center mb-3">
-                        <span class="profile-image">{{substr(session('username'),0,1)}}</span>
+                        <span class="profile-image">{{substr(Auth::user()->name,0,1)}}</span>
                     </div>
-                    <h4 class="text-center">{{strtoupper(session('username'))}}</h4>
+                    <h4 class="text-center">{{strtoupper(Auth::user()->name)}}</h4>
                 </div>
                 <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                     <a class="nav-link active" id="account-tab" data-toggle="pill" href="#account" role="tab" aria-controls="account" aria-selected="true">
@@ -31,13 +31,13 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                       <label>Username</label>
-                                      <input type="text" id="name" name="name" class="form-control" value="{{ $user->name }}">
+                                      <input type="text" id="name" name="name" class="form-control" value="{{ Auth::user()->name }}">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                       <label>Email</label>
-                                      <input type="text" id="email" name="email" class="form-control" value="{{ $user->email }}">
+                                      <input type="text" id="email" name="email" class="form-control" value="{{ Auth::user()->email }}">
                                 </div>
                             </div>
                         </div>
@@ -58,7 +58,7 @@
                             </ul>
                         </div>
                     @endif
-                    <form id="set_password_form" method="post" enctype="multipart/form-data">
+                    <form id="set_password_form" action="{{route('set_password')}}" method="post" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
                             <div class="col-md-6">
@@ -93,46 +93,64 @@
 </section>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
-    $(document).ready(function() {
-        // Handle form submission
-        $('#set_password_form').submit(function(e) {
-            e.preventDefault(); // Prevent default form submission
+    // $(document).ready(function() {
+    //     // Handle form submission
+    //     $('#set_password_form').submit(function(e) {
+    //         e.preventDefault(); // Prevent default form submission
 
-            // Get form data
-            var oldPassword = $('#old_password').val();
-            var newPassword = $('#new_password').val();
-            var confirmPassword = $('#confirm_password').val();
+    //         // Get form data
+    //         var oldPassword = $('#old_password').val();
+    //         var newPassword = $('#new_password').val();
+    //         var confirmPassword = $('#confirm_password').val();
 
-            // Send AJAX request
-            $.ajax({
-                url: '{{ route('set_password') }}',
-                type: 'POST',
-                dataType: 'json',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    old_password: oldPassword,
-                    new_password: newPassword,
-                    confirm_password: confirmPassword
-                },
-                success: function(response) {
-                    // Handle success response
-                    // Display success message or perform any other actions
+    //         // Send AJAX request
+    //         $.ajax({
+    //             url: '{{ route('set_password') }}',
+    //             type: 'POST',
+    //             dataType: 'json',
+    //             data: {
+    //                 _token: '{{ csrf_token() }}',
+    //                 old_password: oldPassword,
+    //                 new_password: newPassword,
+    //                 confirm_password: confirmPassword
+    //             },
+    //             success: function(response) {
+    //                 // Handle success response
+    //                 // Display success message or perform any other actions
 
-                    // Example: Show success toaster
-                    if (response.success) {
-                        toastr.success('Password updated successfully.');
-                    }
-                },
-                error: function(xhr, status, error) {
-                    // Handle error response
-                    // Display error message or perform any other actions
+    //                 // Example: Show success toaster
+    //                 if (response.success) {
+    //                     toastr.success('Password updated successfully.');
+    //                 }
+    //             },
+    //             error: function(xhr, status, error) {
+    //                 // Handle error response
+    //                 // Display error message or perform any other actions
 
-                    // Example: Show error toaster
-                    toastr.error(xhr.responseJSON.message);
-                }
-            });
+    //                 // Example: Show error toaster
+    //                 toastr.error(xhr.responseJSON.message);
+    //             }
+    //         });
+    //     });
+    // });
+    document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('submit', function (event) {
+            if (event.target.id === 'set_password_form') {
+            event.preventDefault(); // Prevent form submission
+
+            // Perform form submission using Axios
+            axios.post(event.target.action, new FormData(event.target))
+                .then(function (response) {
+                // Handle successful form submission
+                swal("Updated!", "Profile has been successfully updated.", "success");
+                event.target.submit();
+                })
+                .catch(function (error) {
+                // Handle form submission error
+                swal("Error!", "An error occurred while updating the profile.", "error");
+                });
+            }
         });
     });
 </script>
-
 @endsection
