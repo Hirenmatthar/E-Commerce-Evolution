@@ -49,7 +49,7 @@ class CategoryController extends Controller
         $counter = $start + 1;
 
         foreach ($records as $record) {
-            $status = $record->status == '1' ? '<span class="text-success">Active</span>' : '<span class="text-danger">Inactive</span>';
+            $status = $record->status == 1 ? '<span class="badge rounded-pill text-success bg-success text-light">Active</span>' : '<span class="badge rounded-pill text-danger bg-danger text-light">Inactive</span>';
 
             $row = [
                 $counter,
@@ -112,47 +112,54 @@ class CategoryController extends Controller
         return view('category.edit',compact('category'));
     }
     public function update(Request $request, Category $category)
-{
-    $request->validate([
-        'name' => 'required',
-        'status' => 'required',
-        'image' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
-    ]);
-
-    $previousImage = $category->image;
-
-    if ($request->hasFile('image')) {
-        $image = $request->file('image');
-        $imageName = date('d-m-y') . "-" . $image->getClientOriginalName();
-        $destinationPath = 'uploaded_images';
-        $path = $image->move($destinationPath, $imageName);
-
-        if ($previousImage) {
-            // Delete the previous image
-            File::delete(public_path($previousImage));
-        }
-
-        $category->image = $path;
-    } elseif ($request->has('delete_image')) {
-        // Delete the image if delete_image checkbox is selected
-        if ($previousImage) {
-            File::delete(public_path($previousImage));
-        }
-        $category->image = null;
-    }
-
-    $category->name = $request->name;
-    $category->status = $request->status;
-    $category->save();
-
-    return redirect()->route('category.index')
-        ->with('success', 'Category updated successfully.');
-}
-    public function destroy(Category $category)
     {
-        $category->delete();
+        $request->validate([
+            'name' => 'required',
+            'status' => 'required',
+            'image' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+
+        $previousImage = $category->image;
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = date('d-m-y') . "-" . $image->getClientOriginalName();
+            $destinationPath = 'uploaded_images';
+            $path = $image->move($destinationPath, $imageName);
+
+            if ($previousImage) {
+                // Delete the previous image
+                File::delete(public_path($previousImage));
+            }
+
+            $category->image = $path;
+        } elseif ($request->has('delete_image')) {
+            // Delete the image if delete_image checkbox is selected
+            if ($previousImage) {
+                File::delete(public_path($previousImage));
+            }
+            $category->image = null;
+        }
+
+        $category->name = $request->name;
+        $category->status = $request->status;
+        $category->save();
 
         return redirect()->route('category.index')
-                        ->with('success','Category deleted successfully');
+            ->with('success', 'Category updated successfully.');
+    }
+    public function destroy(Category $category, Request $request)
+    {
+        if (method_field('DELETE')) {
+            // Delete the image if delete_image checkbox is selected
+            $previousImage = $category->image;
+            if ($previousImage) {
+                File::delete(public_path($previousImage));
+            }
+            $category->image = null;
+            $category->delete();
+            return redirect()->route('category.index')
+                            ->with('success','Category deleted successfully');
+        }
     }
 }

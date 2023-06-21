@@ -5,5 +5,6 @@
         <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/category"><i class="fa-solid fa-square-poll-vertical"></i> Category</a>
         <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/user"><i class="fa-solid fa-user-plus"></i> User</a>
         <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/admin/customer"><i class="fa-solid fa-user-secret"></i> Customer</a>
+        <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/product"><i class="fa-solid fa-cart-shopping"></i> Product</a>
     </div>
 </div>
