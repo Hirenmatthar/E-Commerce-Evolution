@@ -17,6 +17,14 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.js"></script>
+    <script>
+        function deleteThumbnail() {
+            if (confirm('Are you sure you want to delete the thumbnail?')) {
+                document.getElementById('delete_thumbnail').value = 1;
+                document.getElementById('thumbnail_image').style.display = 'none';
+            }
+        }
+    </script>
     @yield('content')
 </div>
 @endsection

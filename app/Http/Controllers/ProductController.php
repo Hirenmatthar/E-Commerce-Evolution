@@ -13,10 +13,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 use Illuminate\Pagination\Paginator;
 
-
 class ProductController extends Controller
 {
-
     public function index(Request $request)
     {
 
@@ -63,7 +61,7 @@ class ProductController extends Controller
                 $record->name,
                 $record->brand,
                 $record->code,
-                $image = $record->image ? '<img src="' . asset($record->image) . '" alt="Product Image" width="100">' : 'No Image',
+                $thumbnail = $record->thumbnail ? '<img src="' . asset($record->thumbnail) . '" alt="Product Thumbnail" width="100">' : 'No Thumbnail',
                 $record->price,
                 $record->description,
                 $record->quantity,
@@ -76,7 +74,7 @@ class ProductController extends Controller
                     ' . method_field('DELETE') . '
                     <button type="submit" class="btn"><i class="fa-solid fa-trash-can"></i></button>
                 </form>'.
-                '<a href="' . route('product.show', $record->id) . '" class="btn"><i class="fa-solid fa-images"></i></a>&nbsp;'
+                '<a href="' . route('product.show', $record->id) . '" class="btn"><i class="fa-solid fa-thumbnails"></i></a>&nbsp;'
             ];
 
             $data[] = $row;
@@ -94,57 +92,70 @@ class ProductController extends Controller
     }
     public function create()
     {
-        $data['categories'] = Category::get(['name','id']);
-        return view('product.create', $data);
+        $categories = Category::all();
+        return view('product.create', compact('categories'));
     }
     public function store(Request $request)
     {
         $request->validate([
+            'cat_name' => 'required',
             'name' => 'required',
             'brand' => 'required',
             'code' => 'required',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'price' => 'required',
+            'thumbnail' => 'required|image|max:2048',
+            'images.*' => 'required|image|max:2048',
+            'price' => 'required|numeric',
             'description' => 'required',
-            'quantity' => 'required',
             'status' => 'required',
-            'cat_name' => 'required',
+            'quantity' => 'required|integer',
         ]);
 
-        $imagename= date('d-m-y')."-".$request->image->getClientOriginalName();
-        $PriorPath=('uploaded_images');
-        if(!$PriorPath){
-            File::makeDirectory('uploaded_images');
-        }
-        $path = $request->image->move($PriorPath, $imagename);
-
-        // Store the record in the "products" table
-        $product = new Product();
+        $product = new Product;
+        $product->cat_id = $request->cat_name;
         $product->name = $request->name;
         $product->brand = $request->brand;
         $product->code = $request->code;
-        $product->image = $path;
+
+        // Upload thumbnail
+        if ($request->hasFile('thumbnail')) {
+            $thumbnail = $request->file('thumbnail');
+            $thumbnailName = time() . '_' . $thumbnail->getClientOriginalName();
+            $thumbnail->move(\public_path('thumbnail'), $thumbnailName);
+            $product->thumbnail = 'thumbnail/' . $thumbnailName;
+        }
+
         $product->price = $request->price;
         $product->description = $request->description;
         $product->quantity = $request->quantity;
         $product->status = $request->status;
-        $product->cat_id = $request->cat_name;
         $product->save();
 
-        // Store the image record in the "images" table
-        $image = new Image();
-        $image->product_id = $product->id;
-        $image->product_img = $path;
-        $image->save();
+        if ($request->hasFile('images')) {
+            $imagePaths = [];
+            foreach ($request->file('images') as $image) {
+                $imageName = time() . '_' . $image->getClientOriginalName();
+                $image->move(\public_path('uploaded_images'), $imageName);
+                $imagePaths[] = 'uploaded_images/' . $imageName;
+            }
+            $imagePathString = implode(',', $imagePaths);
 
-        return redirect()->route('product.index')
-            ->with('success', 'Product created successfully.');
-    }
+            // Create a new image record
+            $imageRecord = new Image();
+            $imageRecord->product_id = $product->id;
+            $imageRecord->product_img = $imagePathString;
+            $imageRecord->save();
+        }
+
+        return redirect()->route('product.index')->with('success', 'Product created successfully.');
+}
+
 
     public function show(Product $product)
     {
-        return view('product.show',compact('product'));
+        $productImages = Image::where('product_id', $product->id)->get();
+        return view('product.show', compact('product','productImages'));
     }
+
 
     public function edit(Product $product)
     {
@@ -157,7 +168,7 @@ class ProductController extends Controller
             'name' => 'required',
             'brand' => 'required',
             'code' => 'required',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'thumbnail' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'price' => 'required',
             'description' => 'required',
             'quantity' => 'required',
@@ -165,26 +176,26 @@ class ProductController extends Controller
             'cat_name' => 'required',
         ]);
 
-        $previousImage = $product->image;
+        $previousThumbnail = $product->thumbnail;
 
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imageName = date('d-m-y') . "-" . $image->getClientOriginalName();
-            $destinationPath = 'uploaded_images';
-            $path = $image->move($destinationPath, $imageName);
+        if ($request->hasFile('thumbnail')) {
+            $thumbnail = $request->file('thumbnail');
+            $thumbnailName = date('d-m-y') . "-" . $thumbnail->getClientOriginalName();
+            $destinationPath = 'thumbnail';
+            $path = $thumbnail->move($destinationPath, $thumbnailName);
 
-            if ($previousImage) {
-                // Delete the previous image
-                File::delete(public_path($previousImage));
+            if ($previousThumbnail) {
+                // Delete the previous thumbnail
+                File::delete(public_path($previousThumbnail));
             }
 
-            $product->image = $path;
-        } elseif ($request->has('delete_image')) {
-            // Delete the image if delete_image checkbox is selected
-            if ($previousImage) {
-                File::delete(public_path($previousImage));
+            $product->thumbnail = $path;
+        } elseif ($request->has('delete_thumbnail')) {
+            // Delete the thumbnail if delete_thumbnail checkbox is selected
+            if ($previousThumbnail) {
+                File::delete(public_path($previousThumbnail));
             }
-            $product->image = null;
+            $product->thumbnail = null;
         }
 
         $product->name = $request->name;
@@ -192,7 +203,7 @@ class ProductController extends Controller
         $product->code = $request->code;
         $product->price = $request->price;
         $product->description = $request->description;
-        $product->quantity = $request->stock_quantity;
+        $product->quantity = $request->quantity;
         $product->status = $request->status;
         $product->cat_id = $request->cat_name;
         $product->save();
@@ -200,18 +211,32 @@ class ProductController extends Controller
         return redirect()->route('product.index')
             ->with('success', 'Product updated successfully.');
     }
-    public function destroy(Product $product, Request $request)
+    public function destroy(Product $product, Request $request, Image $image)
     {
-        if (method_field('DELETE')) {
-            // Delete the image if delete_image checkbox is selected
-            $previousImage = $product->image;
-            if ($previousImage) {
-                File::delete(public_path($previousImage));
-            }
-            $product->image = null;
-            $product->delete();
-            return redirect()->route('product.index')
-                            ->with('success','Product deleted successfully');
+        // Delete the thumbnail if delete_thumbnail checkbox is selected
+        $previousThumbnail = $product->thumbnail;
+        if ($previousThumbnail) {
+            File::delete(public_path($previousThumbnail));
         }
+
+        // Delete the uploaded images from file directory
+        $productImages = $product->images;
+        foreach ($productImages as $productImage) {
+            $imagePaths = explode(',', $productImage->product_img);
+            foreach ($imagePaths as $imagePath) {
+                $imagePath = public_path($imagePath);
+                if (File::exists($imagePath)) {
+                    File::delete($imagePath);
+                }
+            }
+        }
+        // Delete the images from the database
+        $product->images()->delete();
+
+        // Delete the product record
+        $product->delete();
+
+        return redirect()->route('product.index')
+            ->with('success', 'Product and associated images deleted successfully');
     }
 }

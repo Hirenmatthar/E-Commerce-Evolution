@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class Product extends Migration
+class CreateProductsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -16,13 +16,14 @@ class Product extends Migration
             $table->string('name');
             $table->string('brand');
             $table->string('code')->unique();
-            $table->string('image');
+            $table->string('thumbnail');
             $table->integer('price');
             $table->string('description');
             $table->string('quantity');
             $table->integer('status');
-            $table->integer('cat_id');
+            $table->bigInteger('cat_id')->unsigned();
             $table->timestamps();
+            $table->foreign('cat_id')->references('id')->on('categories')->onDelete('cascade');
         });
     }
 
@@ -33,4 +34,4 @@ class Product extends Migration
     {
         Schema::dropIfExists('products');
     }
-};
+}

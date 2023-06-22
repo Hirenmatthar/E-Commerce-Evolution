@@ -21,7 +21,7 @@
                                 <th>Name</th>
                                 <th>Brand</th>
                                 <th>Code</th>
-                                <th>Image</th>
+                                <th>Thumbnail</th>
                                 <th>Price</th>
                                 <th>Description</th>
                                 <th>Quantity</th>

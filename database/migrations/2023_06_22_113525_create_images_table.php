@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class Image extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,10 @@ class Image extends Migration
     {
         Schema::create('images', function (Blueprint $table) {
             $table->id();
-            $table->integer('product_id')->unique();
+            $table->bigInteger('product_id')->unsigned();
             $table->string('product_img');
             $table->timestamps();
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
         });
     }
 

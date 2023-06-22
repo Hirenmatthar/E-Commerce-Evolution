@@ -29,8 +29,8 @@
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
-                <strong>Image:</strong>
-                <img src="../{{$product->image}}" width="500px">
+                <strong>Thumbnail:</strong>
+                <img src="../{{ $product->thumbnail }}" width="500px">
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12">
@@ -67,7 +67,22 @@
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <strong>Category Name:</strong>
-                {{ $product->cat_name }}
+                {{ $product->category->name }}
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
+                <strong>Uploaded Images:</strong>
+                <div>
+                    @foreach ($productImages as $image)
+                        @php
+                            $imagePaths = explode(',', $image->product_img);
+                        @endphp
+                        @foreach ($imagePaths as $imagePath)
+                            <img src="/{{ $imagePath }}" width="200px" style="margin-right: 10px;">
+                        @endforeach
+                    @endforeach
+                </div>
             </div>
         </div>
     </div>

@@ -50,9 +50,14 @@
                 <input type="text" name="code" class="form-control" placeholder="Code">
             </div>
             <div class="form-group">
+                <strong>Thumbnail:</strong>
+                <input
+                 type="file" name="thumbnail" class="form-control" placeholder="Thumbnail" accept="image/">
+            </div>
+            <div class="form-group">
                 <strong>Image:</strong>
                 <input
-                 type="file" name="image" class="form-control" placeholder="image" accept="image/">
+                 type="file" name="images[]" class="form-control" placeholder="image" accept="image/" multiple>
             </div>
             <div class="form-group">
                 <strong>Price:</strong>
@@ -60,11 +65,11 @@
             </div>
             <div class="form-group">
                 <strong>Description:</strong>
-                <input type="text" name="description" class="form-control" placeholder="description">
+                <input type="text" name="description" class="form-control" placeholder="Description">
             </div>
             <div class="form-group">
                 <strong>Quantity:</strong>
-                <input type="number" name="quantity" class="form-control" placeholder="quantity">
+                <input type="number" name="quantity" class="form-control" placeholder="Quantity">
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12">

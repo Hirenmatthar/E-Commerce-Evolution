@@ -43,21 +43,26 @@
                 <div class="col-xs-12 col-sm-12 col-md-12">
                     <div class="form-group">
                         <strong>Image:</strong>
-                        <input type="file" name="image" class="form-control" placeholder="image">
-                        @if ($product->image)
-                            <img src="/{{$product->image}}" alt="Product Image" width="300px">
+                        <input type="file" name="thumbnail" class="form-control">
+                        @if ($product->thumbnail)
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Thumbnail:</strong>
+                                    <img src="/{{$product->thumbnail}}" alt="Product Thumbnail" width="300px" id="thumbnail_image">
+                                </div>
+                            </div>
                         @else
-                            <p>Image not Found</p>
+                            <p>Thumbnail not Found</p>
                         @endif
                     </div>
                 </div>
-                @if($product->image)
-                <div class="col-xs-12 col-sm-12 col-md-12">
-                    <div class="form-group">
-                        <strong>Delete Image:</strong>
-                        <input type="checkbox" name="delete_image" value="1">
+                @if ($product->thumbnail)
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="form-group">
+                            <strong>Delete Thumbnail:</strong>
+                            <button type="button" class="btn btn-danger" onclick="deleteThumbnail()">X</button>
+                        </div>
                     </div>
-                </div>
                 @endif
                 <div class="form-group">
                     <strong>Price:</strong>
@@ -76,28 +81,24 @@
                 <div class="form-group">
                     <strong>Status:</strong>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="status" id="active" value="1" {{ $product->status == 1 ? 'checked' : '' }} required>
+                        <input class="form-check-input" type="radio" name="status" id="active" value="1" {{ $product->status == 1 ? 'checked' : '' }} >
                         <label class="form-check-label" for="active">
                             Active
                         </label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="status" id="inactive" value="0" {{ $product->status == 0 ? 'checked' : '' }} required>
+                        <input class="form-check-input" type="radio" name="status" id="inactive" value="0" {{ $product->status == 0 ? 'checked' : '' }}>
                         <label class="form-check-label" for="inactive">
                             Inactive
                         </label>
                     </div>
                 </div>
             </div>
+            <!-- Add the following line after your existing form fields -->
+            <input type="hidden" name="delete_thumbnail" id="delete_thumbnail" value="0">
+
             <div class="col-xs-12 col-sm-12 col-md-12">
-                <div class="form-group">
-                    <strong>Category Name:</strong>
-                    <input
-                     type="text" name="cat_name" class="form-control" value="{{$product->cat_name}}">
-                </div>
-            </div>
-            <div class="col-xs-12 col-sm-12 col-md-12 text-center">
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="submit" class="btn btn-primary">Submit</button>
             </div>
         </div>
     </form>
