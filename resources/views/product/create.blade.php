@@ -56,8 +56,7 @@
             </div>
             <div class="form-group">
                 <strong>Image:</strong>
-                <input
-                 type="file" name="images[]" class="form-control" placeholder="image" accept="image/" multiple>
+                <input type="file" name="images[]" id="images" class="form-control" placeholder="image" accept="image/" multiple>
             </div>
             <div class="form-group">
                 <strong>Price:</strong>

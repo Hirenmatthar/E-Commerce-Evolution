@@ -17,7 +17,6 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-
         $query = Product::query();
 
         $products = $query->latest()->paginate(5);
@@ -26,6 +25,7 @@ class ProductController extends Controller
         return view('product.index', compact('products'))
             ->with('i', ($products->currentPage() - 1) * 5);
     }
+
     public function getProducts(Request $request)
     {
         // Read value
@@ -73,7 +73,7 @@ class ProductController extends Controller
                     ' . csrf_field() . '
                     ' . method_field('DELETE') . '
                     <button type="submit" class="btn"><i class="fa-solid fa-trash-can"></i></button>
-                </form>'.
+                </form>' .
                 '<a href="' . route('product.show', $record->id) . '" class="btn"><i class="fa-solid fa-thumbnails"></i></a>&nbsp;'
             ];
 
@@ -90,11 +90,13 @@ class ProductController extends Controller
 
         return response()->json($response);
     }
+
     public function create()
     {
         $categories = Category::all();
         return view('product.create', compact('categories'));
     }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -135,31 +137,26 @@ class ProductController extends Controller
             foreach ($request->file('images') as $image) {
                 $imageName = time() . '_' . $image->getClientOriginalName();
                 $image->move(\public_path('uploaded_images'), $imageName);
-                $imagePaths[] = 'uploaded_images/' . $imageName;
+                $imageRecord = new Image();
+                $imageRecord->product_id = $product->id;
+                $imageRecord->product_img = 'uploaded_images/'.$imageName;
+                $imageRecord->save();
             }
-            $imagePathString = implode(',', $imagePaths);
-
-            // Create a new image record
-            $imageRecord = new Image();
-            $imageRecord->product_id = $product->id;
-            $imageRecord->product_img = $imagePathString;
-            $imageRecord->save();
         }
-
         return redirect()->route('product.index')->with('success', 'Product created successfully.');
-}
-
+    }
 
     public function show(Product $product)
     {
         $productImages = Image::where('product_id', $product->id)->get();
-        return view('product.show', compact('product','productImages'));
+        return view('product.show', compact('product', 'productImages'));
     }
-
 
     public function edit(Product $product)
     {
-        return view('product.edit',compact('product'));
+        $categories = Category::all();
+        $productImages = Image::where('product_id', $product->id)->get();
+        return view('product.edit', compact('product', 'categories', 'productImages'));
     }
 
     public function update(Request $request, Product $product)
@@ -169,6 +166,7 @@ class ProductController extends Controller
             'brand' => 'required',
             'code' => 'required',
             'thumbnail' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'price' => 'required',
             'description' => 'required',
             'quantity' => 'required',
@@ -177,10 +175,9 @@ class ProductController extends Controller
         ]);
 
         $previousThumbnail = $product->thumbnail;
-
         if ($request->hasFile('thumbnail')) {
             $thumbnail = $request->file('thumbnail');
-            $thumbnailName = date('d-m-y') . "-" . $thumbnail->getClientOriginalName();
+            $thumbnailName = time() . "_" . $thumbnail->getClientOriginalName();
             $destinationPath = 'thumbnail';
             $path = $thumbnail->move($destinationPath, $thumbnailName);
 
@@ -196,6 +193,9 @@ class ProductController extends Controller
                 File::delete(public_path($previousThumbnail));
             }
             $product->thumbnail = null;
+        } else {
+            // No new thumbnail selected and delete_thumbnail checkbox not selected, keep the previous thumbnail
+            $product->thumbnail = $previousThumbnail;
         }
 
         $product->name = $request->name;
@@ -207,11 +207,9 @@ class ProductController extends Controller
         $product->status = $request->status;
         $product->cat_id = $request->cat_name;
         $product->save();
-
-        return redirect()->route('product.index')
-            ->with('success', 'Product updated successfully.');
+        return redirect()->route('product.index')->with('success', 'Product updated successfully.');
     }
-    public function destroy(Product $product, Request $request, Image $image)
+    public function destroy(Product $product)
     {
         // Delete the thumbnail if delete_thumbnail checkbox is selected
         $previousThumbnail = $product->thumbnail;
@@ -230,13 +228,45 @@ class ProductController extends Controller
                 }
             }
         }
+
         // Delete the images from the database
         $product->images()->delete();
 
         // Delete the product record
         $product->delete();
 
-        return redirect()->route('product.index')
-            ->with('success', 'Product and associated images deleted successfully');
+        return redirect()->route('product.index')->with('success', 'Product and associated images deleted successfully');
+    }
+    public function delete($image)
+    {
+        $productImage = Image::where('id', $image)->first();
+        if ($productImage) {
+            if (File::exists($productImage->product_img)) {
+            File::delete($productImage->product_img);
+        }
+            $productImage->delete();
+            return redirect()->back()->with('success', 'Image deleted successfully.');
+        } else {
+            return redirect()->back()->with('error', 'Image not found.');
+        }
+    }
+    public function storeImage(Request $request, $productId)
+    {
+        // Validate the image file
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+        // Retrieve the uploaded image file
+        $imageFile = $request->file('image');
+        // Generate a unique filename for the image
+        $imageName = time() . '_' . $imageFile->getClientOriginalName();
+        // Store the image file in the 'uploaded_images' folder
+        $imageFile->move(public_path('uploaded_images'), $imageName);
+        $productImage = new Image;
+        $productImage->product_img = 'uploaded_images/'.$imageName;
+        $productImage->product_id = $productId;
+        $productImage->save();
+        // Create a new ProductImages instance
+        return redirect()->back()->with('success', 'Image inserted successfully.');
     }
 }
