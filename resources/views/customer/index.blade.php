@@ -20,6 +20,7 @@
                                 <th>No.</th>
                                 <th>First Name</th>
                                 <th>Last Name</th>
+                                <th>Image</th>
                                 <th>Email</th>
                                 <th>Phone No</th>
                                 <th>Address</th>

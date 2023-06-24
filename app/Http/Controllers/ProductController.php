@@ -73,8 +73,7 @@ class ProductController extends Controller
                     ' . csrf_field() . '
                     ' . method_field('DELETE') . '
                     <button type="submit" class="btn"><i class="fa-solid fa-trash-can"></i></button>
-                </form>' .
-                '<a href="' . route('product.show', $record->id) . '" class="btn"><i class="fa-solid fa-thumbnails"></i></a>&nbsp;'
+                </form>'
             ];
 
             $data[] = $row;
@@ -96,7 +95,6 @@ class ProductController extends Controller
         $categories = Category::all();
         return view('product.create', compact('categories'));
     }
-
     public function store(Request $request)
     {
         $request->validate([
@@ -228,7 +226,6 @@ class ProductController extends Controller
                 }
             }
         }
-
         // Delete the images from the database
         $product->images()->delete();
 
@@ -254,7 +251,7 @@ class ProductController extends Controller
     {
         // Validate the image file
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
         // Retrieve the uploaded image file
         $imageFile = $request->file('image');

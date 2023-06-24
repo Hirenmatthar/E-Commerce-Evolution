@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use DataTables;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
@@ -53,6 +54,7 @@ class CustomerController extends Controller
                 $counter,
                 $record->first_name,
                 $record->last_name,
+                $image = $record->image ? '<img src="' . asset($record->image) . '" alt="Customer Image" width="100">' : 'No Image',
                 $record->email,
                 $record->phone_no,
                 $record->address,
@@ -84,24 +86,21 @@ class CustomerController extends Controller
         return response()->json($data);
 
     }
-
     public function fetchCity(Request $request){
         $data['cities'] = City::where('state_id',$request->state_id)->get(['name','id']);
         return response()->json($data);
     }
-
     public function create()
     {
         $data['countries'] = Country::get(['name','id']);
         return view('customer.create', $data);
     }
-
-
     public function store(Request $request)
     {
         $request->validate([
             'first_name' => 'required',
             'last_name' => 'required',
+            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'email' => 'required|email',
             'phone_no' => 'required',
             'address' => 'required',
@@ -119,6 +118,14 @@ class CustomerController extends Controller
         $customer = new Customer();
         $customer->first_name = $request->first_name;
         $customer->last_name = $request->last_name;
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(\public_path('customer_images'), $imageName);
+            $customer->image = 'customer_images/' . $imageName;
+        }
+
         $customer->email = $request->email;
         $customer->phone_no = $request->phone_no;
         $customer->address = $request->address;
@@ -130,25 +137,22 @@ class CustomerController extends Controller
         return redirect()->route('customer.index')
                         ->with('success','Customer created successfully.');
     }
-
     public function show(Customer $customer)
     {
         return view('customer.show',compact('customer'));
     }
-
-
     public function edit(Customer $customer)
     {
         $data['countries'] = Country::get(['name','id']);
-        return view('customer.edit',compact('customer'),$data);
+        $data1['states'] = State::get(['name','id']);
+        return view('customer.edit',compact('customer'),$data,$data1);
     }
-
-
     public function update(Request $request, Customer $customer)
     {
         $request->validate([
             'first_name' => 'required',
             'last_name' => 'required',
+            'image' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
             'email' => 'required|email',
             'phone_no' => 'required',
             'address' => 'required',
@@ -165,6 +169,30 @@ class CustomerController extends Controller
         // Create a new Customer instance and populate the attributes
         $customer->first_name = $request->first_name;
         $customer->last_name = $request->last_name;
+
+        $previousImage = $customer->image;
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = date('d-m-y') . "_" . $image->getClientOriginalName();
+            $destinationPath = 'customer_images';
+            $path = $image->move($destinationPath, $imageName);
+
+            if ($previousImage) {
+                // Delete the previous image
+                File::delete(public_path($previousImage));
+            }
+
+            $customer->image = $path;
+        } elseif ($request->has('delete_image')) {
+            // Delete the image if delete_image checkbox is selected
+            if ($previousImage) {
+                File::delete(public_path($previousImage));
+            }
+            $customer->image = null;
+        } else {
+            // No new image selected and delete_image checkbox not selected, keep the previous image
+            $customer->image = $previousImage;
+        }
         $customer->email = $request->email;
         $customer->phone_no = $request->phone_no;
         $customer->address = $request->address;
@@ -177,15 +205,18 @@ class CustomerController extends Controller
         return redirect()->route('customer.index')
             ->with('success', 'Customer updated successfully.');
     }
-
-
     public function destroy(Customer $customer)
     {
-        $customer->delete();
-
-        return redirect()->route('customer.index')
-                        ->with('success','Customer deleted successfully');
+        if (method_field('DELETE')) {
+            // Delete the image if delete_image checkbox is selected
+            $previousImage = $customer->image;
+            if ($previousImage) {
+                File::delete(public_path($previousImage));
+            }
+            $customer->image = null;
+            $customer->delete();
+            return redirect()->route('customer.index')
+                            ->with('success','Customer deleted successfully');
+        }
     }
-
-
 }

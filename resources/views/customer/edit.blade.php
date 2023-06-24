@@ -39,6 +39,20 @@
                     <input type="text" name="last_name" value="{{ $customer->last_name }}" class="form-control" placeholder="Last Name">
                 </div>
             </div>
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="form-group">
+                    <strong>Image:</strong>
+                    <input type="file" name="image" class="form-control">
+                    @if ($customer->image)
+                        <div class="image-container">
+                            <button type="button" class="btn btn-danger" id="delete_image_button" onclick="deleteImage()">X</button>
+                            <img src="/{{$customer->image}}" alt="Category Image" width="300px" id="image">
+                        </div>
+                    @else
+                        <p>Image not Found</p>
+                    @endif
+                </div>
+            </div>
             <div class="col-xs-5 col-sm-5 col-md-5">
                 <div class="form-group">
                     <strong>Email:</strong>
@@ -75,7 +89,7 @@
                 <div class="form-group">
                     <strong>State:</strong>
                     <select name="state" class="form-control" id="state"  value="{{ $customer->state }}">
-
+                        
                     </select>
                 </div>
             </div>
@@ -93,13 +107,24 @@
                     <input type="number" name="postal_code" value="{{ $customer->postal_code }}" class="form-control" placeholder="Postal Code">
                 </div>
             </div>
-
+            <input hidden type="checkbox" name="delete_image" id="delete_image" value="0">
             <div class="col-xs-12 col-sm-12 col-md-12 text-center">
                     <button type="submit" class="btn btn-primary">Submit</button>
             </div>
         </div>
 @endsection
 @push('scripts')
+<script>
+    function deleteImage() {
+        const deleteImageCheckbox = document.getElementById('delete_image');
+        deleteImageCheckbox.checked = true;
+
+        const imageContainer = document.querySelector('.image-container');
+        if (imageContainer) {
+            imageContainer.remove();
+        }
+    }
+</script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
     $(document).ready(function () {
@@ -151,3 +176,22 @@
     });
 </script>
 @endpush
+@section('styles')
+    <style>
+        .image-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .image-container img {
+            width: 300px;
+        }
+
+        .image-container button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+    </style>
+@endsection
+

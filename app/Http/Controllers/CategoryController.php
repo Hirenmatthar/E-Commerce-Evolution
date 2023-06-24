@@ -87,13 +87,13 @@ class CategoryController extends Controller
         $request->validate([
             'name' => 'required',
             'status' => 'required',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
         $imagename= date('d-m-y')."-".$request->image->getClientOriginalName();
-        $PriorPath=('uploaded_images');
+        $PriorPath=('category_images');
         if(!$PriorPath){
-            File::makeDirectory('uploaded_images');
+            File::makeDirectory('category_images');
         }
         $path = $request->image->move($PriorPath,$imagename);
 
@@ -120,11 +120,10 @@ class CategoryController extends Controller
         ]);
 
         $previousImage = $category->image;
-
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $imageName = date('d-m-y') . "-" . $image->getClientOriginalName();
-            $destinationPath = 'uploaded_images';
+            $imageName = date('d-m-y') . "_" . $image->getClientOriginalName();
+            $destinationPath = 'category_images';
             $path = $image->move($destinationPath, $imageName);
 
             if ($previousImage) {
@@ -139,6 +138,9 @@ class CategoryController extends Controller
                 File::delete(public_path($previousImage));
             }
             $category->image = null;
+        } else {
+            // No new image selected and delete_image checkbox not selected, keep the previous image
+            $category->image = $previousImage;
         }
 
         $category->name = $request->name;
@@ -148,7 +150,7 @@ class CategoryController extends Controller
         return redirect()->route('category.index')
             ->with('success', 'Category updated successfully.');
     }
-    public function destroy(Category $category, Request $request)
+    public function destroy(Category $category)
     {
         if (method_field('DELETE')) {
             // Delete the image if delete_image checkbox is selected

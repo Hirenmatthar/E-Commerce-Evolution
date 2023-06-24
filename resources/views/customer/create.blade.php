@@ -38,6 +38,13 @@
                 <input type="text" name="last_name" class="form-control" placeholder="Last Name">
             </div>
         </div>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
+                <strong>Image:</strong>
+                <input
+                 type="file" name="image" class="form-control" placeholder="image" accept="image/">
+            </div>
+        </div>
         <div class="col-xs-5 col-sm-5 col-md-5">
             <div class="form-group">
                 <strong>Email:</strong>

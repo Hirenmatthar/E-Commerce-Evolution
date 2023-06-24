@@ -120,13 +120,13 @@
                     @endforeach
                 </select>
             </div>
+            <input hidden type="checkbox" name="delete_thumbnail" id="delete_thumbnail" value="0">
             <!-- Add the following line after your existing form fields -->
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <button type="submit" class="btn btn-primary">Submit</button>
             </div>
         </div>
     </form>
-
 <script>
     function deleteThumbnail() {
         const deleteThumbnailCheckbox = document.getElementById('delete_thumbnail');
