@@ -60,7 +60,9 @@
                 @yield('user-content')
                 @yield('customer-content')
                 @yield('product-content')
+                @yield('role-content')
                 @yield('profile-content')
+
             </div>
         </div>
         <!-- Bootstrap core JS-->

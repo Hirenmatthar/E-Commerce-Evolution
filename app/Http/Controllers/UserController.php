@@ -13,26 +13,15 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\DataTables;
+use Spatie\Permission\Models\Role;
+use Illuminate\Support\Arr;
 
 class UserController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, User $users)
     {
-        $search = $request->input('search');
-
-        $query = User::query();
-        $users = User::latest()->paginate(5);
-        if ($search) {
-            $query->where('name', 'LIKE', "%$search%");
-        }
-
-        $users = $query->latest()->paginate(1);
-        Paginator::useBootstrap();
-
-        return view('user.index',compact('users','search'))
-            ->with('i', (request()->input('page', 1) - 1) * 5);
-        }
-
+        return view('user.index',compact('users'));
+    }
     public function getUsers(Request $request)
     {
         // Read value
@@ -65,6 +54,7 @@ class UserController extends Controller
             $row = [
                 $counter,
                 $record->name,
+                $record->roles,
                 $record->email,
 
                 '<a href="' . route('user.edit', $record->id) . '" class="btn"><i class="fa-regular fa-pen-to-square"></i></a>&nbsp;' .
@@ -91,7 +81,8 @@ class UserController extends Controller
     }
     public function create()
     {
-        return view('user.create');
+        $roles = Role::pluck('name','name')->all();
+        return view('user.create',compact('roles'));
     }
     public function show(User $user){
         return view('user.show',compact('user'));
@@ -99,31 +90,40 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'roles' => 'required',
             'name' => 'required',
             'email' => 'required|email',
             'password' => ['required','string',Password::min(8)->letters()->numbers()->mixedCase()->symbols()]
         ]);
 
         $input = $request->all();
+        $input['password'] = Hash::make($input['password']);
 
-        User::create($input);
+        $user = User::create($input);
+        $user->assignRole($request->input('roles'));
 
         return redirect()->route('user.index')
                         ->with('success','User created successfully.');
     }
-    public function edit(User $user)
+    public function edit(User $user, Request $request)
     {
-        return view('user.edit',compact('user'));
+        $user = User::find($request->id);
+        $roles = Role::pluck('name','name')->all();
+        $userRole = $user->roles;
+        return view('user.edit',compact('user','roles','userRole'));
     }
     public function view_profile(User $user)
     {
-        return view('auth.profile');
+        $roles = Role::pluck('name','name')->all();
+        $userRole = $user->roles->pluck('name','name')->all();
+        return view('auth.profile', compact('roles', 'userRole'));
     }
     public function edit_profile(Request $request)
     {
 
-        $user = DB::table('users')->where('id',Auth::user()->id)->value('name','email');
+        $user = DB::table('users')->where('id',Auth::user()->id)->value('role','name','email');
         $user = [
+            'roles' => $request->roles,
             'name' => $request->name,
             'email' => $request->email
         ];
@@ -138,11 +138,13 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $request->validate([
+            'role' => 'required',
             'name' => 'required',
             'email' => 'required|email'
         ]);
 
         // Update the user's other fields
+        $user->roles = $request->roles;
         $user->name = $request->name;
         $user->email = $request->email;
         $user->save();
