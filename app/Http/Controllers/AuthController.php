@@ -48,20 +48,23 @@ class AuthController extends Controller
         // return response()->json(['error'=>$validator->errors()]);
     }
     public function validateRegForm(Request $request){
-        $request->validate([
+        $validator = Validator::make($request->all(),[
             'username'=>'required',
             'email'=>'required|unique:users|email',
             'password' => ['required','string',Password::min(8)->letters()->numbers()->mixedCase()->symbols()]
         ]);
-        User::create([
-            'name'=>$request->username,
-            'email'=>$request->email,
-            'password'=>Hash::make($request->password)
-        ]);
-
-        if(Auth::attempt($request->only('email','password'))){
-            return redirect('dashboard.Main.index');
+        if($validator->passes()){
+            User::create([
+                'name'=>$request->username,
+                'email'=>$request->email,
+                'password'=>Hash::make($request->password)
+            ]);
+            return response()->json(['success'=>'hello']);
         }
+        return response()->json(['error'=>$validator->errors()]);
+        // if(Auth::attempt($request->only('email','password'))){
+        //     return redirect('dashboard.Main.index');
+        // }
         // return redirect('/admin/login')->withError('Error');
         // $validator = Validator::make($request->all(),[
         //     'username'=>'required',

@@ -105,23 +105,23 @@ class UserController extends Controller
         return redirect()->route('user.index')
                         ->with('success','User created successfully.');
     }
-    public function edit(User $user, Request $request)
+    public function edit(User $user)
     {
-        $user = User::find($request->id);
+        $userRole = Auth::user()->roles;
         $roles = Role::pluck('name','name')->all();
-        $userRole = $user->roles;
-        return view('user.edit',compact('user','roles','userRole'));
+        return view('user.edit', compact('user', 'roles', 'userRole'));
     }
+
     public function view_profile(User $user)
     {
         $roles = Role::pluck('name','name')->all();
-        $userRole = $user->roles->pluck('name','name')->all();
+        $userRole = Auth::user()->roles;
         return view('auth.profile', compact('roles', 'userRole'));
     }
     public function edit_profile(Request $request)
     {
 
-        $user = DB::table('users')->where('id',Auth::user()->id)->value('role','name','email');
+        $user = DB::table('users')->where('id',Auth::user()->id)->value('roles','name','email');
         $user = [
             'roles' => $request->roles,
             'name' => $request->name,
@@ -138,7 +138,7 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $request->validate([
-            'role' => 'required',
+            'roles' => 'required',
             'name' => 'required',
             'email' => 'required|email'
         ]);

@@ -30,12 +30,7 @@
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>Role Name:</strong>
-                    <select name="roleName" class="form-control" id="roles">
-                        <option value="">Select Role</option>
-                        @foreach($roles as $r)
-                            <option value="{{ $r->id }}" {{ $role->id == $r->id ? 'selected' : '' }}>{{ $r->name }}</option>
-                        @endforeach
-                    </select>
+                    <input type="text" name="roles" class="form-control" value="{{$role->name}}">
                 </div>
             </div>
             <div class="col-xs-5 col-sm-5 col-md-5">
@@ -49,7 +44,6 @@
                     @endforeach
                 </div>
             </div>
-
             <div class="col-xs-12 col-sm-12 col-md-12 text-center">
               <button type="submit" class="btn btn-primary">Submit</button>
             </div>

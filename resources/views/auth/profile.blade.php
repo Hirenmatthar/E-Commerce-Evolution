@@ -36,6 +36,17 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
+                                    <strong>Role:</strong>
+                                    <select name="roles" class="form-control" id="roles">
+                                        <option value="">Select Role</option>
+                                        @foreach($roles as $role)
+                                            <option value="{{ $role }}" {{ $userRole == $role ? 'selected' : '' }}>{{ $role }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
                                       <label>Email</label>
                                       <input type="text" id="email" name="email" class="form-control" value="{{ Auth::user()->email }}">
                                 </div>

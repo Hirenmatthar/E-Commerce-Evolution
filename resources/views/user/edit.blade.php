@@ -4,7 +4,7 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <div class="pull-left">
-                <h2>Edit user</h2>
+                <h2>Edit User</h2>
             </div>
             <div class="pull-right">
                 <a class="btn btn-primary" href="{{ route('user.index') }}"> Back</a>
@@ -26,15 +26,6 @@
     <form action="{{ route('user.update',$user->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
-
-        {{-- <div class="col-xs-12 col-sm-12 col-md-12">
-            <div class="form-group">
-                <strong>Image:</strong>
-                <input type="file" name="image" class="form-control" placeholder="Image">
-                <img src="/{{ $user->image }}" width="300px">
-                <input type="checkbox" class="btn btn-danger" name="delete_image" value="1"> <label >Delete_Image</label>
-            </div>
-        </div> --}}
 
          <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12">
@@ -63,7 +54,7 @@
 
 
             <div class="col-xs-12 col-sm-12 col-md-12 text-center">
-              <button type="submit" class="btn btn-primary">Submit</button>
+              <button type="submit" class="btn btn-primary">Update</button>
             </div>
         </div>
 

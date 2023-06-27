@@ -53,14 +53,12 @@
             <div class="form-group">
                 <strong>Email:</strong>
                 <input type="text" name="email" class="form-control" placeholder="Email">
-
             </div>
         </div>
         <div class="col-xs-5 col-sm-5 col-md-5">
             <div class="form-group">
                 <strong>Password:</strong>
                 <input type="password" name="password" class="form-control" placeholder="Password">
-
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12 text-center">

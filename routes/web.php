@@ -20,6 +20,7 @@ Route::post('/register', [AuthController::class, 'validateRegForm'])->name('vali
 Route::resource('/category', CategoryController::class);
 Route::post('/getCategory', [CategoryController::class, 'getCategories'])->name('getCategories');
 
+
 Route::resource('/user', UserController::class);
 Route::post('/user/getUser', [UserController::class, 'getUsers'])->name('getUsers');
 Route::get('/admin/profile', [UserController::class, 'view_profile'])->name('view_profile');
