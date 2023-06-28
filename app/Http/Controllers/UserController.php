@@ -107,7 +107,7 @@ class UserController extends Controller
     }
     public function edit(User $user)
     {
-        $userRole = Auth::user()->roles;
+        $userRole = $user->roles;
         $roles = Role::pluck('name','name')->all();
         return view('user.edit', compact('user', 'roles', 'userRole'));
     }
@@ -127,7 +127,6 @@ class UserController extends Controller
             'name' => $request->name,
             'email' => $request->email
         ];
-
         DB::table('users')
             ->where('id',Auth::user()->id)
             ->update($user);

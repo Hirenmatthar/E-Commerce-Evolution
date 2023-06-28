@@ -12,6 +12,14 @@ use Illuminate\Support\Facades\Auth;
 
 class RoleController extends Controller
 {
+    // function __construct()
+    // {
+    //     //  $this->middleware('permission:role-list|role-create|role-edit|role-delete', ['only' => ['index', 'getRoles', 'store', 'create', 'edit', 'update', 'show', 'destroy']]);
+    //      $this->middleware('permission:role-create', ['only' => ['create','store']]);
+    //      $this->middleware('permission:role-list', ['only' => ['show']]);
+    //      $this->middleware('permission:role-edit', ['only' => ['edit','update']]);
+    //      $this->middleware('permission:role-delete', ['only' => ['destroy']]);
+    // }
     public function index(Request $request)
     {
         $roles = Role::all();
