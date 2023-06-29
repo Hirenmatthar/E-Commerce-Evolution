@@ -15,6 +15,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\DataTables;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\File;
 
 class UserController extends Controller
 {
@@ -49,14 +50,12 @@ class UserController extends Controller
         $counter = $start + 1;
 
         foreach ($records as $record) {
-
-
             $row = [
                 $counter,
                 $record->name,
+                $image = $record->image ? '<img src="' . asset($record->image) . '" alt="User Image" width="100">' : 'No Image',
                 $record->roles,
                 $record->email,
-
                 '<a href="' . route('user.edit', $record->id) . '" class="btn"><i class="fa-regular fa-pen-to-square"></i></a>&nbsp;' .
                 '<a href="' . route('user.show', $record->id) . '" class="btn"><i class="fa-solid fa-eye"></i></a>&nbsp;' .
                 '<form action="' . route('user.destroy', $record->id) . '" method="POST" style="display:inline">
@@ -91,16 +90,27 @@ class UserController extends Controller
     {
         $request->validate([
             'roles' => 'required',
+            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'name' => 'required',
             'email' => 'required|email',
             'password' => ['required','string',Password::min(8)->letters()->numbers()->mixedCase()->symbols()]
         ]);
 
-        $input = $request->all();
-        $input['password'] = Hash::make($input['password']);
-
-        $user = User::create($input);
+        $user = new User();
+        $user->roles = $request->roles;
         $user->assignRole($request->input('roles'));
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(\public_path('user_images'), $imageName);
+            $user->image = 'user_images/' . $imageName;
+        }
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = Hash::make($request->password);
+        $user->save();
 
         return redirect()->route('user.index')
                         ->with('success','User created successfully.');
@@ -120,16 +130,48 @@ class UserController extends Controller
     }
     public function edit_profile(Request $request)
     {
+        $request->validate([
+            'roles' => 'required',
+            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'name' => 'required',
+            'email' => 'required|email'
+        ]);
 
-        $user = DB::table('users')->where('id',Auth::user()->id)->value('roles','name','email');
+        // Update the user's other fields
         $user = [
             'roles' => $request->roles,
             'name' => $request->name,
-            'email' => $request->email
+            'email' => $request->email,
+            'image' => null
         ];
+
+        $previousImage = Auth::user()->image;
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = date('d-m-y') . "_" . $image->getClientOriginalName();
+            $destinationPath = 'user_images';
+            $path = $image->move($destinationPath, $imageName);
+
+            if ($previousImage) {
+                // Delete the previous image
+                File::delete(public_path($previousImage));
+            }
+            $user['image'] = $path;
+        } elseif ($request->has('delete_image')) {
+            // Delete the image if delete_image checkbox is selected
+            if ($previousImage) {
+                File::delete(public_path($previousImage));
+            }
+            $user['image'] = null;
+        } else {
+            // No new image selected and delete_image checkbox not selected, keep the previous image
+            $user['image'] = $previousImage;
+        }
+
         DB::table('users')
-            ->where('id',Auth::user()->id)
-            ->update($user);
+                ->where('id',Auth::user()->id)
+                ->update($user);
+
 
         return redirect()->route('view_profile')
             ->with('success', 'User updated successfully.');
@@ -138,12 +180,37 @@ class UserController extends Controller
     {
         $request->validate([
             'roles' => 'required',
+            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'name' => 'required',
             'email' => 'required|email'
         ]);
 
         // Update the user's other fields
         $user->roles = $request->roles;
+
+        $previousImage = $user->image;
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = date('d-m-y') . "_" . $image->getClientOriginalName();
+            $destinationPath = 'user_images';
+            $path = $image->move($destinationPath, $imageName);
+
+            if ($previousImage) {
+                // Delete the previous image
+                File::delete(public_path($previousImage));
+            }
+            $user->image = $path;
+        } elseif ($request->has('delete_image')) {
+            // Delete the image if delete_image checkbox is selected
+            if ($previousImage) {
+                File::delete(public_path($previousImage));
+            }
+            $user->image = null;
+        } else {
+            // No new image selected and delete_image checkbox not selected, keep the previous image
+            $user->image = $previousImage;
+        }
+
         $user->name = $request->name;
         $user->email = $request->email;
         $user->save();
@@ -151,12 +218,19 @@ class UserController extends Controller
         return redirect()->route('user.index')
             ->with('success', 'User updated successfully.');
     }
-
     public function destroy(User $user)
     {
-        $user->delete();
-        return redirect()->route('user.index')
-                        ->with('success','user deleted successfully');
+        if (method_field('DELETE')) {
+            // Delete the image if delete_image checkbox is selected
+            $previousImage = $user->image;
+            if ($previousImage) {
+                File::delete(public_path($previousImage));
+            }
+            $user->image = null;
+            $user->delete();
+            return redirect()->route('user.index')
+                            ->with('success','User deleted successfully');
+        }
     }
     public function set_password(Request $request, User $user)
     {

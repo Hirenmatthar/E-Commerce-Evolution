@@ -25,17 +25,18 @@
 
 <form action="{{ route('user.store') }}" method="POST" enctype="multipart/form-data">
     @csrf
-    {{-- <div class="col-xs-12 col-sm-12 col-md-12">
-        <div class="form-group">
-            <label for="image">Image:</label>
-            <input type="file" name="image" class="form-control-file" id="image" accept="image/">
-        </div>
-    </div> --}}
      <div class="row">
         <div class="col-xs-5 col-sm-5 col-md-5">
             <div class="form-group">
                 <strong>Username:</strong>
                 <input type="text" name="name" class="form-control" placeholder="Username">
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
+                <strong>Profile Image:</strong>
+                <input
+                 type="file" name="image" class="form-control" placeholder="image" accept="image/">
             </div>
         </div>
         <div class="col-xs-5 col-sm-5 col-md-5">

@@ -8,7 +8,11 @@
             <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        <span class="profile-image">{{substr(Auth::user()->name,0,1)}}</span>
+                        @if(Auth::user()->image)
+                            <img src="/{{Auth::user()->image}}" alt="User Image" width="100px" id="image">
+                        @else
+                            <span class="profile-image">{{substr(Auth::user()->name,0,1)}}</span>
+                        @endif
                     </a>
                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="{{ route('view_profile') }}">Profile</a>

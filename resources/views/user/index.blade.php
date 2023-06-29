@@ -17,8 +17,9 @@
                     <table id="userTable" class="table table-striped" style="width:100%">
                         <thead>
                             <tr>
-                                <th>#</th>
+                                <th>No.</th>
                                 <th>Name</th>
+                                <th>Profile Image</th>
                                 <th>Role</th>
                                 <th>Email</th>
                                 <th>Action</th>

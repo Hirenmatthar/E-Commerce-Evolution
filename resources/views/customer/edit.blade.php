@@ -69,7 +69,7 @@
             </div>
             <div class="col-xs-5 col-sm-5 col-md-5">
                 <div class="form-group">
-                    <strong>address:</strong>
+                    <strong>Address:</strong>
                     <input type="text" name="address" value="{{ $customer->address }}" class="form-control" placeholder="Address">
 
                 </div>
@@ -89,7 +89,7 @@
                 <div class="form-group">
                     <strong>State:</strong>
                     <select name="state" class="form-control" id="state"  value="{{ $customer->state }}">
-                        
+
                     </select>
                 </div>
             </div>

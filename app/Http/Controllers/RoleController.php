@@ -2,24 +2,26 @@
 
 namespace App\Http\Controllers;
 
-
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Models\User;
 
 class RoleController extends Controller
 {
-    // function __construct()
-    // {
-    //     //  $this->middleware('permission:role-list|role-create|role-edit|role-delete', ['only' => ['index', 'getRoles', 'store', 'create', 'edit', 'update', 'show', 'destroy']]);
-    //      $this->middleware('permission:role-create', ['only' => ['create','store']]);
-    //      $this->middleware('permission:role-list', ['only' => ['show']]);
-    //      $this->middleware('permission:role-edit', ['only' => ['edit','update']]);
-    //      $this->middleware('permission:role-delete', ['only' => ['destroy']]);
-    // }
+    use AuthorizesRequests;
+    function __construct()
+    {
+        //  $this->middleware('permission:role-list|role-create|role-edit|role-delete', ['only' => ['index', 'getRoles', 'store', 'create', 'edit', 'update', 'show', 'destroy']]);
+        //  $this->middleware('permission:role-create', ['only' => ['create','store']]);
+        //  $this->middleware('permission:role-list', ['only' => ['show']]);
+        //  $this->middleware('permission:role-edit', ['only' => ['edit','update']]);
+        //  $this->middleware('permission:role-delete', ['only' => ['destroy']]);
+    }
     public function index(Request $request)
     {
         $roles = Role::all();
@@ -53,12 +55,10 @@ class RoleController extends Controller
         $counter = $start + 1;
 
         foreach ($records as $record) {
-
-
             $row = [
                 $counter,
                 $record->name,
-                '<a href="' . route('role.edit', $record->id) . '" class="btn"><i class="fa-regular fa-pen-to-square"></i></a>&nbsp;' .
+                '<a href="' . route('role.edit', $record->id) . '" class="btn"><i class="fa-regular fa-pen-to-square"></i></a>&nbsp;'.
                 '<a href="' . route('role.show', $record->id) . '" class="btn"><i class="fa-solid fa-eye"></i></a>&nbsp;' .
                 '<form action="' . route('role.destroy', $record->id) . '" method="POST" style="display:inline">
                     ' . csrf_field() . '
@@ -76,7 +76,6 @@ class RoleController extends Controller
             'recordsFiltered' => $filteredRecords,
             'data' => $data,
         ];
-
         return response()->json($response);
     }
     public function create()

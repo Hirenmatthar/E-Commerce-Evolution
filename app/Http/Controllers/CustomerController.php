@@ -16,12 +16,8 @@ class CustomerController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Customer::query();
-        $customers = $query->latest()->paginate(5);
-        Paginator::useBootstrap();
-
-        return view('customer.index', compact('customers'))
-            ->with('i', ($customers->currentPage() - 1) * 5);
+       $customers = Customer::all();
+        return view('customer.index', compact('customers'));
     }
     public function getCustomers(Request $request)
     {
@@ -181,7 +177,6 @@ class CustomerController extends Controller
                 // Delete the previous image
                 File::delete(public_path($previousImage));
             }
-
             $customer->image = $path;
         } elseif ($request->has('delete_image')) {
             // Delete the image if delete_image checkbox is selected
@@ -193,6 +188,7 @@ class CustomerController extends Controller
             // No new image selected and delete_image checkbox not selected, keep the previous image
             $customer->image = $previousImage;
         }
+        
         $customer->email = $request->email;
         $customer->phone_no = $request->phone_no;
         $customer->address = $request->address;
